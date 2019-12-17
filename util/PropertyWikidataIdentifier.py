@@ -18,7 +18,7 @@ class PropertyWikidataIdentifier:
                 mylabels["en"] = "Wikidata ID"
                 wikibase_item.editLabels(mylabels, summary=u'Insert a property to have a wikidata identifier')
                 self.property = wikibase_item.getID()
-                return wikibase_item.getID()
+                return wikibase_item
             except pywikibot.exceptions.OtherPageSaveError as e:
                 print("Could not set labels of ", wikibase_item.getID())
                 # this happens when a property with the same label already exists
