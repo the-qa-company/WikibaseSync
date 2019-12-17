@@ -1,0 +1,12 @@
+certifi==2019.11.28
+chardet==3.0.4
+idna==2.8
+isodate==0.6.0
+pycparser==2.19
+pyparsing==2.4.5
+pywikibot==3.0.20191204.dev0
+rdflib==4.2.2
+requests==2.22.0
+six==1.13.0
+SPARQLWrapper==1.8.4
+urllib3==1.25.7
