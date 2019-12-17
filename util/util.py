@@ -8,6 +8,8 @@ from util.IdSparql import IdSparql
 languages = ["bg","cs","da","de","el","en","es","et","fi","fr","ga","hr","hu","it","lb","lt","lv","mt","nl","pl","pt","ro","sk","sl","sv","tr"]
 
 
+import json
+
 
 wikidata = pywikibot.Site("wikidata", "wikidata")
 wikidata_repo = wikidata.data_repository()
@@ -143,7 +145,9 @@ def changeSiteLinks(wikidata_item, wikibase_item):
             print("Could not set sitelinks of ", wikibase_item.getID())
             print(e)
 
-def importEntity(wikidata_item, wikibase_item):
+def importItem(wikidata_item):
+    print("Import Entity", wikidata_item.getID()+" from Wikidata")
+    wikibase_item = pywikibot.ItemPage(wikibase_repo)
     mylabels = diffLabels(wikidata_item, wikibase_item)
     myDescriptions = diffDescriptions(wikidata_item, wikibase_item)
     myaliases = diffAliases(wikidata_item, wikibase_item)
@@ -159,7 +163,7 @@ def importEntity(wikidata_item, wikibase_item):
         'claims': [claim.toJSON()]
            }
     try:
-        wikibase_item.editEntity(data, summary=u'Importing new entity')
+        wikibase_item.editEntity(data, summary=u'Importing entity '+wikidata_item.getID()+' from wikidata')
         id.save_id(wikidata_item.getID(), wikibase_item.getID())
         return wikibase_item.getID()
     except pywikibot.exceptions.OtherPageSaveError as e:
@@ -172,7 +176,9 @@ def importEntity(wikidata_item, wikibase_item):
             print("This should not happen")
         print("Error probably property or item already existing ", e)
 
-def importProperty(wikidata_item, wikibase_item):
+def importProperty(wikidata_item):
+    print("Import Property", wikidata_item.getID()+" from Wikidata")
+    wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype=wikidata_item.type)
     mylabels = diffLabels(wikidata_item, wikibase_item)
     myDescriptions = diffDescriptions(wikidata_item, wikibase_item)
     myaliases = diffAliases(wikidata_item, wikibase_item)
@@ -187,7 +193,7 @@ def importProperty(wikidata_item, wikibase_item):
         'claims': [claim.toJSON()]
            }
     try:
-        wikibase_item.editEntity(data, summary=u'Importing new entity')
+        wikibase_item.editEntity(data, summary=u'Importing property '+wikidata_item.getID()+' from wikidata')
         id.save_id(wikidata_item.getID(), wikibase_item.getID())
         return wikibase_item.getID()
     except pywikibot.exceptions.OtherPageSaveError as e:
@@ -451,12 +457,10 @@ def compare_claim(wikidata_claim, wikibase_claim):
 def translateClaim(wikidata_claim):
     wikidata_propertyId = wikidata_claim.get('property')
     if not id.contains_id(wikidata_propertyId):
-        print("Not Found")
         wikidata_property = pywikibot.PropertyPage(wikidata_repo, wikidata_propertyId,
                                                    datatype=wikidata_claim.get('datatype'))
         wikidata_property.get()
-        wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype=wikidata_property.type)
-        importProperty(wikidata_property, wikibase_item)
+        importProperty(wikidata_property)
     # WIKIBASE-ITEM
     if wikidata_claim.get('datatype') == 'wikibase-item':
         # add the entity to the wiki
@@ -464,7 +468,8 @@ def translateClaim(wikidata_claim):
             wikidata_claim.get('datavalue').get('value').get('numeric-id'))
         if not id.contains_id(wikidata_objectId):
             item = pywikibot.ItemPage(wikidata_repo, wikidata_objectId)
-            changeItem(item, wikibase_repo, False)
+            item.get()
+            importItem(item)
         if id.contains_id(wikidata_objectId) and (not id.get_id(wikidata_objectId) == '-1'):
             claim = pywikibot.Claim(wikibase_repo, id.get_id(wikidata_propertyId), datatype='wikibase-item')
             object = pywikibot.ItemPage(wikibase_repo, id.get_id(wikidata_objectId))
@@ -596,7 +601,7 @@ def translateClaim(wikidata_claim):
                 claim.setRank(wikidata_claim.get('rank'))
                 return claim
         else:
-            if (not id.get_id(wikidata_objectId) == '-1'):
+            if (id.contains_id(wikidata_objectId) and not id.get_id(wikidata_objectId) == '-1'):
                 if wikidata_upperBound == None:
                     wikibase_unit = pywikibot.ItemPage(wikibase_repo, id.get_id(wikidata_objectId))
                     #here this is a hack .......
@@ -637,6 +642,7 @@ def translateClaim(wikidata_claim):
                                      datatype='string')
         target = wikidata_value
         claim.setTarget(target)
+        claim.setRank(wikidata_claim.get('rank'))
         claim.setRank(wikidata_claim.get('rank'))
         return claim
     # GEOSHAPE
@@ -807,7 +813,7 @@ def changeClaims(wikidata_item,wikibase_item):
                             found_equal_value = True
             #print(found_equal_value)
             if found_equal_value == False:
-                #print("This claim is added ", wikidata_claim)
+                # print("This claim is added ", wikidata_claim)
                 #import the property if it does not exist
                 if wikidata_claim.get('mainsnak').get('snaktype') == 'value':
                     # the claim is added
@@ -826,23 +832,30 @@ def changeClaims(wikidata_item,wikibase_item):
                                         for old_reference in snak.get('snaks').get(key):
                                             # print('old',old_reference)
                                             new_reference = translateClaim(old_reference)
+                                            # print(new_reference)
                                             #this can happen if the object entity has no label in any given language
                                             if new_reference != None:
                                                 new_references.append(new_reference)
                                         if len(new_references)>0:
                                             claim.addSources(new_references)
                         newClaims.append(claim.toJSON())
+                        # data = {}
+                        # data['claims'] = [claim.toJSON()]
+                        # print("Data ", json.dumps(data))
+                        # wikibase_item.editEntity(data)
+
                     else:
                         print('The translated claim is None ', wikidata_claim.get('mainsnak'))
                 elif wikidata_claim.get('mainsnak').get('snaktype') == 'novalue':
                     print("Claims with no value not implemented yet")
                 else:
                         print('This should not happen ',wikidata_claim.get('mainsnak'))
-    data = {}
-    data['claims'] = newClaims
-    print(data)
-    wikibase_item.editEntity(data)
-
+    if len(newClaims)>0:
+        for claimsToAdd in chunks(newClaims, 50):
+            data = {}
+            data['claims'] = claimsToAdd
+            print("Data ",data)
+            wikibase_item.editEntity(data)
 
 
 
@@ -864,22 +877,20 @@ def wikidata_link(wikibase_item, wikidata_item):
 
 
 def changeItem(wikidata_item,wikibase_repo,statements):
-    wikibase_item = None
-
     try:
         item = wikidata_item.get()
     except pywikibot.exceptions.UnknownSite as e:
         print("There is a problem fetching an entity, this should ideally not occur")
         return
-    print("Import Entity", wikidata_item.getID())
+    print("Change Entity", wikidata_item.getID())
     if not id.contains_id(wikidata_item.getID()):
-        wikibase_item = pywikibot.ItemPage(wikibase_repo)
-        new_id = importEntity(wikidata_item, wikibase_item)
+        new_id = importItem(wikidata_item)
+        wikibase_item = pywikibot.ItemPage(wikibase_repo, new_id)
+        wikibase_item.get()
     else:
         print("This entity corresponds to ",id.get_id(wikidata_item.getID()))
         wikibase_item = pywikibot.ItemPage(wikibase_repo, id.get_id(wikidata_item.getID()))
         wikibase_item.get()
-        new_id = wikibase_item.getID()
         changeLabels(wikidata_item, wikibase_item)
         changeDescriptions(wikidata_item, wikibase_item)
         changeSiteLinks(wikidata_item, wikibase_item)
@@ -890,19 +901,17 @@ def changeItem(wikidata_item,wikibase_repo,statements):
 
 
 def changeProperty(wikidata_item, wikibase_repo, statements):
-    print("Import Property", wikidata_item.getID())
+    print("Change Property", wikidata_item.getID())
     wikidata_item.get()
     wikibase_item = None
     if not id.contains_id(wikidata_item.getID()):
-        wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype=wikidata_item.type)
-        new_id = importProperty(wikidata_item, wikibase_item)
+        new_id = importProperty(wikidata_item)
     else:
         wikibase_item = pywikibot.PropertyPage(wikibase_repo, id.get_id(wikidata_item.getID()), datatype=wikidata_item.type)
         wikibase_item.get()
         new_id = wikibase_item.getID()
         changeLabels(wikidata_item,wikibase_item)
         changeDescriptions(wikidata_item,wikibase_item)
-        changeSiteLinks(wikidata_item,wikibase_item)
         wikidata_link(wikibase_item, wikidata_item)
     if statements:
         changeClaims(wikidata_item,wikibase_item)
