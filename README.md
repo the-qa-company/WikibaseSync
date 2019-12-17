@@ -6,18 +6,11 @@
 - `virtualenv venv --python=python3`
 - `source venv/bin/activate`
 - `pip install -r requirements.txt`
--  git clone https://github.com/wikimedia/pywikibot.git
-- change
-https://github.com/wikimedia/pywikibot/blob/26deab88936cbf85aa24e1ddfc9b62e81d80a9bb/pywikibot/data/api.py#L1615
-with:
-messages = None
-if 'messages' in error:
-            messages = error['messages']
-        #messages = error.pop('messages', None)
-- pip install pywikibot/ to install the local dependency
--/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/json/decoder.py
-line 337 unnecessary output
-- attach to new wiki
-    - change url in config/my_family.py
-    - change user-confing.py
-    - change user-password.py
+
+# Usage
+- Login in the Wikibase instance
+- Go to "Special Pages" -> "Bot passwords" and type the name of your bot
+- Give him the follwing rights: "High-volume editing", "Edit existing pages" and "Create, edit, and move pages"
+- Copy your username in "user-config.py" and in "main.py"
+- Copy the name of the bot and the password in "user-password.py"
+- In config/my_family.py specify the URL of the wikibase 
