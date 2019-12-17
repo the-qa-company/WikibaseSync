@@ -1,0 +1,6 @@
+env/
+pywikibot.lwp
+throttle.ctrl
+apicache-py3/
+.idea/
+util/__pycache__/
