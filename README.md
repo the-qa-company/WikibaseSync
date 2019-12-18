@@ -6,6 +6,13 @@
 - `virtualenv venv --python=python3`
 - `source venv/bin/activate`
 - `pip install -r requirements.txt`
+- WARNING: Unfortunatly the current pywikibot libary contains a bug.
+  - clone the pywikibot repository "git clone https://github.com/wikimedia/pywikibot.git"
+  - change the follwing file "/pywikibot/data/api.py" at the line L1615 with
+  - messages = None
+    if 'messages' in error:
+            messages = error['messages']
+  - install the library with "pip install pywikibot/" (don't forget the slash ; ))
 
 # Usage
 - Login in the Wikibase instance
