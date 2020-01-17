@@ -23,7 +23,7 @@ class Family(family.WikimediaFamily):
     # }
 
     langs = {
-         'my': 'localhost:8181',
+         'my': 'linkedopendata.eu',
     }
 
     interwiki_forward = 'wikipedia'
@@ -69,7 +69,7 @@ class Family(family.WikimediaFamily):
 
     def protocol(self, code):
         return {
-            'my': 'http',
+            'my': 'https',
         }[code]
 
     def globes(self, code):

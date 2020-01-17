@@ -1,2 +1,2 @@
-(u'Admin', BotPassword(u'wikidataUpdater', u'e4mmg2u4i6b6aa5uibfhccij9oe82u8l'))
+(u'WikidataUpdater', BotPassword(u'WikidataUpdater', u'dfcuif32290bvs78g9f1n3tm7sajd39r'))
 #(u'WikibaseAdmin', BotPassword(u'WikibaseUpdater', u'ehm1cehdldfpi8bc18qvba30uqm3mfa8'))
