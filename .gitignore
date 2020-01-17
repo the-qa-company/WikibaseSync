@@ -5,4 +5,4 @@ apicache-py3/
 .idea/
 util/__pycache__/
 venv
-.pyc
+*.pyc
