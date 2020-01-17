@@ -10,7 +10,7 @@ if not os.path.isfile(familyfile):
   print ("family file %s is missing" % (familyfile))
 config2.register_family_file(family, familyfile)
 config2.password_file = "user-password.py"
-config2.usernames['my']['my'] = 'Max'
+config2.usernames['my']['my'] = 'WikidataUpdater'
 
 #connect to the wikibase
 wikibase = pywikibot.Site("my", "my")

@@ -20,9 +20,10 @@ wikibase_repo = wikibase.data_repository()
 #find the external identifier for wikidata
 property_wikidata_identifier = PropertyWikidataIdentifier()
 wikidata_identifier = property_wikidata_identifier.get(wikibase_repo)
+wikidata_identifier = pywikibot.PropertyPage(wikibase_repo,"P1")
 print('wikidata_identifier',wikidata_identifier)
 
-endpoint = "http://localhost:8989/bigdata/namespace/wdq/sparql"
+endpoint = "http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql"
 id = IdSparql(endpoint, wikidata_identifier)
 id.load()
 
@@ -162,6 +163,7 @@ def importItem(wikidata_item):
         'sitelinks': mySitelinks,
         'claims': [claim.toJSON()]
            }
+    print(data)
     try:
         wikibase_item.editEntity(data, summary=u'Importing entity '+wikidata_item.getID()+' from wikidata')
         id.save_id(wikidata_item.getID(), wikibase_item.getID())
