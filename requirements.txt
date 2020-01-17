@@ -4,7 +4,7 @@ idna==2.8
 isodate==0.6.0
 pycparser==2.19
 pyparsing==2.4.5
-pywikibot==3.0.20191204.dev0
+git+https://github.com/wikimedia/pywikibot.git
 rdflib==4.2.2
 requests==2.22.0
 six==1.13.0
