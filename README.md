@@ -14,7 +14,7 @@
             messages = error['messages']
   - install the library with "pip install pywikibot/" (don't forget the slash ; ))
 
-# Usage
+# Setup
 - Login in the Wikibase instance
 - Go to "Special Pages" -> "Bot passwords" and type the name of your bot
 - Give him the follwing rights: "High-volume editing", "Edit existing pages" and "Create, edit, and move pages"
