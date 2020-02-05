@@ -17,6 +17,7 @@ wikidata_repo = wikidata.data_repository()
 wikibase = pywikibot.Site("my", "my")
 wikibase_repo = wikibase.data_repository()
 
+
 #find the external identifier for wikidata
 property_wikidata_identifier = PropertyWikidataIdentifier()
 wikidata_identifier = property_wikidata_identifier.get(wikibase_repo)
@@ -26,6 +27,8 @@ print('wikidata_identifier',wikidata_identifier)
 endpoint = "http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql"
 id = IdSparql(endpoint, wikidata_identifier)
 id.load()
+print(id.mapEntity)
+print(id.mapProperty)
 
 #comparing the labels
 def diffLabels(wikidata_item,wikibase_item):
@@ -658,7 +661,6 @@ def translateClaim(wikidata_claim):
         return claim
     # TABULAR-DATA
     elif wikidata_claim.get('datatype') == 'tabular-data':
-        print(wikidata_claim)
         return None
         print('Not implemented yet tabular-data')
         #raise NameError('Tabluar data not implemented')
@@ -704,6 +706,7 @@ def compare_claim_with_qualifiers_and_references(wikidata_claim, wikibase_claim)
                 # print("Check now 2 ",qualifiers_equal)
     if ('qualifiers' in wikidata_claim and not('qualifiers' in wikibase_claim) or (not 'qualifiers' in wikidata_claim) and 'qualifiers' in wikibase_claim):
         qualifiers_equal = False
+
     # print("qualifiers_equal",qualifiers_equal)
     # compare references
     references_equal = True
@@ -740,7 +743,7 @@ def compare_claim_with_qualifiers_and_references(wikidata_claim, wikibase_claim)
     if ('references' in wikidata_claim and not('references' in wikibase_claim)) or (not('references' in wikidata_claim) and 'references' in wikibase_claim):
         references_equal = False
     # print("references_equal", references_equal)
-    if claim_found_equal_value and qualifiers_equal and references_equal and wikidata_claim.get('rank') ==  wikidata_claim.get('rank'):
+    if claim_found_equal_value and qualifiers_equal and references_equal and wikidata_claim.get('rank') ==  wikibase_claim.get('rank'):
         found_equal_value = True
     return claim_found, found_equal_value
 
@@ -786,12 +789,14 @@ def changeClaims(wikidata_item,wikibase_item):
                 print("This claim is deleted it's a duplicate", wikibase_claim)
     if len(claimsToRemove)>0:
         for claimsToRemoveChunk in chunks(claimsToRemove,50):
-            print("Problematic chunk",claimsToRemoveChunk)
             wikibase_item.removeClaims(claimsToRemoveChunk)
     print("Claims to remove ",claimsToRemove)
     #check which claims are in wikidata and not in wikibase and import them
     #refetch the wikibase entity since some statements may hav been deleted
-    wikibase_item = pywikibot.ItemPage(wikibase_repo, wikibase_item.getID())
+    if wikibase_item.getID().startswith("Q"):
+        wikibase_item = pywikibot.ItemPage(wikibase_repo, wikibase_item.getID())
+    else:
+        wikibase_item = pywikibot.PropertyPage(wikidata_repo, wikibase_item.getID())
     wikibase_item.get()
     newClaims = []
     for claims in wikidata_item.claims:
@@ -821,6 +826,7 @@ def changeClaims(wikidata_item,wikibase_item):
                     # the claim is added
                     claim = translateClaim(wikidata_claim.get('mainsnak'))
                     if claim is not None:
+                        claim.setRank(wikidata_claim.get('rank'))
                         if 'qualifiers' in wikidata_claim:
                             for key in wikidata_claim.get('qualifiers'):
                                 for old_qualifier in wikidata_claim.get('qualifiers').get(key):

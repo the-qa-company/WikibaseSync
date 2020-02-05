@@ -18,7 +18,7 @@ class IdSparql:
         # """
         query = """
                     select ?item ?id where {
-                        ?item <http://linkedopendata.eu/prop/direct/""" + self.identifier.getID() + """> ?id
+                        ?item <https://linkedopendata.eu/prop/direct/""" + self.identifier.getID() + """> ?id
                     }
                 """
         sparql.setQuery(query)
