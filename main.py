@@ -23,14 +23,8 @@ wikidata_repo = wikidata.data_repository()
 #import an item
 from util.util import changeItem, changeProperty, importProperty
 
-# item = sys.argv[1]
-# wikidata_item = pywikibot.PropertyPage(wikidata_repo, item)
-# wikidata_item.get()
-# print(wikidata_item.getID())
-# importProperty(wikidata_item)
-
 #import a list
-filepath = 'list'
+filepath = 'list2'
 with open(filepath) as fp:
     line = fp.readline()
     while line:
@@ -43,7 +37,7 @@ with open(filepath) as fp:
             elif (line.startswith("P")):
                 wikidata_property = pywikibot.PropertyPage(wikidata_repo, line)
                 wikidata_property.get()
-                changeItem(wikidata_item, wikibase_repo, True)
+                changeProperty(wikidata_property, wikibase_repo, True)
 
         line = fp.readline()
 

@@ -3,11 +3,12 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 
 
 class IdSparql:
-    def __init__(self, endpoint, identifier):
+    def __init__(self, endpoint, item_identifier, property_identifier):
         self.mapEntity = {}
         self.mapProperty = {}
         self.endpoint = endpoint
-        self.identifier = identifier
+        self.item_identifier = item_identifier
+        self.property_identifier = property_identifier
 
     def load(self):
         sparql = SPARQLWrapper(self.endpoint)
@@ -18,7 +19,7 @@ class IdSparql:
         # """
         query = """
                     select ?item ?id where {
-                        ?item <https://linkedopendata.eu/prop/direct/""" + self.identifier.getID() + """> ?id
+                        ?item <https://linkedopendata.eu/prop/direct/""" + self.item_identifier + """> ?id
                     }
                 """
         sparql.setQuery(query)
@@ -27,11 +28,23 @@ class IdSparql:
         for result in results['results']['bindings']:
             split = result['item']['value'].split('/')
             id = split[len(split)-1]
-
+            if id.startswith('Q'):
+                self.mapEntity[result['id']['value']] = id
+            else:
+                print("This should not happen")
+        query = """
+                            select ?item ?id where {
+                                ?item <https://linkedopendata.eu/prop/direct/""" + self.property_identifier + """> ?id
+                            }
+                        """
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        for result in results['results']['bindings']:
+            split = result['item']['value'].split('/')
+            id = split[len(split) - 1]
             if id.startswith('P'):
                 self.mapProperty[result['id']['value']] = id
-            elif id.startswith('Q'):
-                self.mapEntity[result['id']['value']] = id
             else:
                 print("This should not happen")
 

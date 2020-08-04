@@ -28,10 +28,12 @@ from util.util import changeItem, changeProperty, importProperty
 arg = sys.argv[1]
 print(f"Importing {arg}")
 if arg.startswith("Q"):
+    print("before get")
     wikidata_item = pywikibot.ItemPage(wikidata_repo, arg)
     wikidata_item.get()
+    print("after get")
     changeItem(wikidata_item, wikibase_repo, True)
 elif arg.startswith("P"):
     wikidata_property = pywikibot.PropertyPage(wikidata_repo, arg)
     wikidata_property.get()
-    changeItem(wikidata_item, wikibase_repo, True)
+    changeProperty(wikidata_property, wikibase_repo, True)
