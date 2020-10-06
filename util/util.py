@@ -102,7 +102,7 @@ def changeLabels(wikidata_item, wikibase_item):
             if x:
                 return x.group(0).replace("[[Property:", "").split("|")[0]
             else:
-                print("This should not happen")
+                print("This should not happen 3")
 
 
 # comparing the descriptions
@@ -134,7 +134,7 @@ def change_descriptions(wikidata_item, wikibase_item):
             if x:
                 return x.group(0).replace("[[Item:", "").split("|")[0]
             else:
-                print("This should not happen")
+                print("This should not happen 4")
             print("Error probably property or item already existing ", e)
 
 
@@ -223,7 +223,7 @@ def importItem(wikidata_item):
         if x:
             return x.group(0).replace("[[Item:", "").split("|")[0]
         else:
-            print("This should not happen")
+            print("This should not happen 5")
         print("Error probably property or item already existing ", e)
 
 def importProperty(wikidata_item):
@@ -253,7 +253,7 @@ def importProperty(wikidata_item):
         if x:
             return x.group(0).replace("[[Item:", "").split("|")[0]
         else:
-            print("This should not happen")
+            print("This should not happen 6")
         print("Error probably property or item already existing ", e)
 
 

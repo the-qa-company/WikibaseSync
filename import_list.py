@@ -3,6 +3,9 @@ import os
 import sys
 import pywikibot
 from pywikibot import config2
+
+from util.changes import recent_changes
+
 family = 'my'
 mylang = 'my'
 familyfile=os.path.relpath("./config/my_family.py")
@@ -21,10 +24,10 @@ wikidata = pywikibot.Site("wikidata", "wikidata")
 wikidata_repo = wikidata.data_repository()
 
 #import an item
-from util.util import changeItem, changeProperty, importProperty
+from util.util import changeItem, changeProperty, importProperty, importItem
 
-#import a list
-filepath = 'list2'
+# import a list
+filepath = 'list'
 with open(filepath) as fp:
     line = fp.readline()
     while line:
@@ -41,14 +44,6 @@ with open(filepath) as fp:
 
         line = fp.readline()
 
-# check if there are changes
-# recent = recent_changes(None, 3)
-# for rc in recent:
-#     #print(str(rc['title']))
-#     if id.contains_id(rc['title']):
-#         print("Found a change ...", str(rc['title']))
-#         wikidata_item = pywikibot.ItemPage(wikidata_repo, str(rc['title']))
-#         importItem(wikidata_item, wikibase_repo, True)
 
 
 

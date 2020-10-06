@@ -2,7 +2,7 @@ import requests
 from datetime import datetime, timedelta
 
 
-def recent_changes(rccontinue, hours):
+def get_wikidata_changes(rccontinue, hours):
     print(rccontinue)
     time = datetime.now() - timedelta(hours=hours)
     S = requests.Session()
@@ -22,10 +22,12 @@ def recent_changes(rccontinue, hours):
 
     R = S.get(url=url, params=parameters)
     data = R.json()
+    S.close()
 
     date_time_obj = datetime.strptime(data['continue']['rccontinue'].split('|')[0], '%Y%m%d%H%M%S')
+    print("time ",time," date_time_obj ",date_time_obj)
     if time < date_time_obj:
-        older_changes = recent_changes(data['continue']['rccontinue'], hours)
+        older_changes = get_wikidata_changes(data['continue']['rccontinue'], hours)
         return data['query']['recentchanges'] + older_changes
     else:
         print("Finished")
