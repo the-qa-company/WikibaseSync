@@ -39,30 +39,34 @@ def jsonToItem(wikibase_repo,json_object):
   data = {}
   # labels
   labels = {}
-  for lang in y['labels']:
-    if 'removed' not in y['labels'][lang]:  # T56767
-      labels[lang] = y['labels'][lang]['value']
+  if 'labels' in y:
+    for lang in y['labels']:
+        if 'removed' not in y['labels'][lang]:  # T56767
+            labels[lang] = y['labels'][lang]['value']
 
   # descriptions
   descriptions = {}
-  for lang in y['descriptions']:
-    descriptions[lang] = y['descriptions'][lang]['value']
+  if 'descriptions' in y:
+      for lang in y['descriptions']:
+        descriptions[lang] = y['descriptions'][lang]['value']
 
   # aliases
   aliases = {}
-  for lang in y['aliases']:
-    aliases[lang] = []
-    for value in y['aliases'][lang]:
-      aliases[lang].append(value['value'])
+  if 'aliases' in y:
+    for lang in y['aliases']:
+        aliases[lang] = []
+        for value in y['aliases'][lang]:
+            aliases[lang].append(value['value'])
 
   # claims
   claims = {}
-  for pid in y['claims']:
-    claims[pid] = []
-    for claim in y['claims'][pid]:
-      c = Claim.fromJSON(wikibase_repo, claim)
-      # c.on_item = self
-      claims[pid].append(c)
+  if 'claims' in y:
+      for pid in y['claims']:
+        claims[pid] = []
+        for claim in y['claims'][pid]:
+            c = Claim.fromJSON(wikibase_repo, claim)
+            # c.on_item = self
+            claims[pid].append(c)
 
   data['labels'] = labels
   data['descriptions'] = descriptions
