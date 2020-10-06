@@ -30,7 +30,7 @@ query = """
                 ?s <https://linkedopendata.eu/prop/direct/P1> ?id .
                 ?s ?p ?o .                                     
                 FILTER(STRSTARTS(STR(?p), "https://linkedopendata.eu/prop/direct/") && ?p != <https://linkedopendata.eu/prop/direct/P1> && STRSTARTS(STR(?s), "https://linkedopendata.eu/entity/Q"))
-            } order by desc(?id) offset 6489
+            } order by desc(?id) offset 7919
         """
 sparql.setQuery(query)
 sparql.setReturnFormat(JSON)

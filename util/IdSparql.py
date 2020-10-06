@@ -1,4 +1,5 @@
-#this class makes the correspondence between Wikidata entities and entities in the Wikibase using the external identifier for Wikidata
+# this class makes the correspondence between Wikidata entities and entities in the Wikibase using the external
+# identifier for Wikidata
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 
@@ -12,11 +13,6 @@ class IdSparql:
 
     def load(self):
         sparql = SPARQLWrapper(self.endpoint)
-        # query = """
-        #     select ?item ?id where {
-        #         ?item <"""+self.identifier.concept_uri()+"""> ?id
-        #     }
-        # """
         query = """
                     select ?item ?id where {
                         ?item <https://linkedopendata.eu/prop/direct/""" + self.item_identifier + """> ?id
@@ -30,8 +26,6 @@ class IdSparql:
             id = split[len(split)-1]
             if id.startswith('Q'):
                 self.mapEntity[result['id']['value']] = id
-            else:
-                print("This should not happen")
         query = """
                             select ?item ?id where {
                                 ?item <https://linkedopendata.eu/prop/direct/""" + self.property_identifier + """> ?id
