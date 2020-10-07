@@ -1028,9 +1028,9 @@ def changeItem(wikidata_item,wikibase_repo,statements):
         changeLabels(wikidata_item, wikibase_item)
         changeAliases(wikidata_item, wikibase_item)
         change_descriptions(wikidata_item, wikibase_item)
-        changeSiteLinks(wikidata_item, wikibase_item)
         wikidata_link(wikibase_item, wikidata_item)
     if (statements == True):
+        changeSiteLinks(wikidata_item, wikibase_item)
         changeClaims(wikidata_item,wikibase_item)
     return wikibase_item
 
