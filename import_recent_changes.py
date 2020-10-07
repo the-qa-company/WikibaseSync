@@ -39,7 +39,7 @@ idSparql = IdSparql("http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql
 idSparql.load()
 
 #grab all entities that changed
-recent = get_wikidata_changes(None, 30)
+recent = get_wikidata_changes(None, 15)
 for rc in recent:
     print(str(rc['title']))
     if idSparql.contains_id(str(rc['title'])):
