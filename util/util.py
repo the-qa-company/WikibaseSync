@@ -981,7 +981,7 @@ def changeClaims(wikidata_item,wikibase_item):
             import json
             print("Data ",json.dumps(data))
             try:
-                wikibase_item.editEntity(data, summary="Adding this statements since they where added in Wikidata")
+                wikibase_item.editEntity(data, summary="Adding these statements since they where added in Wikidata")
             except (pywikibot.data.api.APIError, pywikibot.exceptions.OtherPageSaveError) as e:
                 print(e)
 
