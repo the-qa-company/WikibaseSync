@@ -52,8 +52,6 @@ for rc in recent:
         for wikibase_claims in wikibase_item.claims:
             for wikibase_c in wikibase_item.claims.get(wikibase_claims):
                 count=count+1
-                print("Enter here ",count)
-        print("This is the count!!!!!! ",count)
         if count > 1:
             changeItem(wikidata_item, wikibase_repo, True)
         else:
