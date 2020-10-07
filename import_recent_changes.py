@@ -7,7 +7,7 @@ import logging
 
 from util.get_wikidata_changes import get_wikidata_changes
 
-logging.getLogger('pywiki').setLevel(logging.INFO)
+logging.getLogger('pywiki').disabled
 
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
