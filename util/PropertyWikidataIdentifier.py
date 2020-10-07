@@ -3,7 +3,7 @@
 import pywikibot
 import re
 
-from src.pywikibot.pywikibot.data.api import APIError
+from pywikibot.data.api import APIError
 
 
 class PropertyWikidataIdentifier:
