@@ -39,7 +39,7 @@ idSparql = IdSparql("http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql
 idSparql.load()
 
 #grab all entities that changed
-recent = get_wikidata_changes(None, 3)
+recent = get_wikidata_changes(None, 30)
 for rc in recent:
     print(str(rc['title']))
     if idSparql.contains_id(str(rc['title'])):
@@ -51,7 +51,9 @@ for rc in recent:
         count = 0
         for wikibase_claims in wikibase_item.claims:
             for wikibase_c in wikibase_item.claims.get(wikibase_claims):
-                count=+1
+                count=count+1
+                print("Enter here ",count)
+        print("This is the count!!!!!! ",count)
         if count > 1:
             changeItem(wikidata_item, wikibase_repo, True)
         else:
