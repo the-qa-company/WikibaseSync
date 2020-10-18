@@ -60,9 +60,12 @@ def jsonToItem(wikibase_repo,json_object):
   for pid in y['claims']:
     claims[pid] = []
     for claim in y['claims'][pid]:
-      c = Claim.fromJSON(wikibase_repo, claim)
-      # c.on_item = self
-      claims[pid].append(c)
+      try:
+        c = Claim.fromJSON(wikibase_repo, claim)
+        # c.on_item = self
+        claims[pid].append(c)
+      except KeyError:
+          print("This can happen when a property was deleted")
 
   data['labels'] = labels
   data['descriptions'] = descriptions
@@ -290,6 +293,22 @@ def compare_claim(wikidata_claim, wikibase_claim, translate):
                     else:
                         if wikidata_objectId == wikibase_objectId:
                             found_equal_value = True
+            # WIKIBASE-PROPERTY
+            elif wikidata_claim.get('datatype') == 'wikibase-property':
+                if wikibase_claim.get('datatype') == 'wikibase-property':
+                    wikidata_objectId = 'P' + str(
+                        wikidata_claim.get('datavalue').get('value').get('numeric-id'))
+                    wikibase_objectId = 'P' + str(
+                        wikibase_claim.get('datavalue').get('value').get('numeric-id'))
+                    # print(id.get_id(wikidata_propertyId),"---", wikibase_propertyId)
+                    # print(id.get_id(wikidata_objectId),"---",wikibase_objectId)
+                    if translate:
+                        if id.contains_id(wikidata_objectId) and id.get_id(
+                            wikidata_objectId) == wikibase_objectId:
+                            found_equal_value = True
+                    else:
+                        if wikidata_objectId == wikibase_objectId:
+                            found_equal_value = True
             # MONOLINGUALTEXT
             elif wikidata_claim.get('datatype') == 'monolingualtext':
                 if wikibase_claim.get('datatype') == 'monolingualtext':
@@ -494,7 +513,7 @@ def compare_claim(wikidata_claim, wikibase_claim, translate):
                 # claim.setTarget(target)
                 # item.addClaim(claim)
             else:
-                print('This datatype is not supported ',wikidata_claim.get('datatype'))
+                print('This datatype is not supported ',wikidata_claim.get('datatype'),' ----  ',wikibase_claim.get('datatype') )
     return found, found_equal_value
 
 # translate one claim from wikidata in one of wikibase
@@ -532,7 +551,24 @@ def translateClaim(wikidata_claim):
                 claim.setTarget(object)
                 claim.setRank(wikidata_claim.get('rank'))
                 return claim
+        # WIKIBASE-PROPERTY
+        elif wikidata_claim.get('datatype') == 'wikibase-property':
+            wikidata_objectId = 'P' + str(
+                wikidata_claim.get('datavalue').get('value').get('numeric-id'))
+            if not id.contains_id(wikidata_objectId):
+                item = pywikibot.PropertyPage(wikidata_repo, wikidata_objectId)
+                try:
+                    item.get()
+                    importProperty(item)
+                except pywikibot.exceptions.IsRedirectPage:
+                    print("We are ignoring this")
 
+            if id.contains_id(wikidata_objectId) and (not id.get_id(wikidata_objectId) == '-1'):
+                claim = pywikibot.Claim(wikibase_repo, id.get_id(wikidata_propertyId), datatype='wikibase-property')
+                object = pywikibot.PropertyPage(wikibase_repo, id.get_id(wikidata_objectId))
+                claim.setTarget(object)
+                claim.setRank(wikidata_claim.get('rank'))
+                return claim
         # MONOLINGUALTEXT
         elif wikidata_claim.get('datatype') == 'monolingualtext':
             claim = pywikibot.Claim(wikibase_repo, id.get_id(wikidata_propertyId), datatype='monolingualtext')
@@ -726,8 +762,6 @@ def translateClaim(wikidata_claim):
             # target = pywikibot.WbGeoShape(page)
             # claim.setTarget(target)
             # item.addClaim(claim)
-        elif wikidata_claim.get('datatype') == 'wikibase-property':
-            print('Not implemented yet wikibase-property')
         else:
             print('This datatype is not supported ',wikidata_claim.get('datatype'), ' translating the following claim ',wikidata_claim)
             return None
@@ -916,23 +950,16 @@ def changeClaims(wikidata_item,wikibase_item):
             wikidata_claim = c.toJSON()
             found_equal_value = False
             wikidata_propertyId = wikidata_claim.get('mainsnak').get('property')
-            #print(wikidata_propertyId)
-
-            if wikibase_item.getID().startswith("Q") or ( wikibase_item.getID().startswith("P") and (wikidata_propertyId == "P1630" or wikidata_propertyId == "P2302")):
-                #this is the property for duplicate items
-                # if  wikidata_propertyId == "P4293":
+            print(wikidata_propertyId)
+            if wikibase_item.getID().startswith("Q") or wikibase_item.getID().startswith("P"):
                 for wikibase_claims in wikibase_item.claims:
                     for wikibase_c in wikibase_item.claims.get(wikibase_claims):
                         wikibase_claim = wikibase_c.toJSON()
-
-                        wikibase_propertyId = wikibase_claim.get('mainsnak').get('property')
-                        # if wikibase_propertyId == "P116":
-                        #     print("HERE ",wikibase_claim)
-                        # if the property is not there then it cannot be in the wikibase
                         if id.contains_id(wikidata_propertyId):
                             (claim_found, claim_found_equal_value, more_accurate) = compare_claim_with_qualifiers_and_references(wikidata_claim, wikibase_claim,True)
                             if (claim_found_equal_value == True):
                                 found_equal_value = True
+                print(found_equal_value)
                 if found_equal_value == False:
                     # print("This claim is added ", wikidata_claim)
                     # import the property if it does not exist
@@ -973,6 +1000,7 @@ def changeClaims(wikidata_item,wikibase_item):
                         print("Claims with no value not implemented yet")
                     else:
                             print('This should not happen ',wikidata_claim.get('mainsnak'))
+    print("claimsToAdd ",newClaims)
     if len(newClaims)>0:
         for claimsToAdd in chunks(newClaims, 20):
             data = {}
@@ -1025,7 +1053,7 @@ def changeItem(wikidata_item,wikibase_repo,statements):
         changeAliases(wikidata_item, wikibase_item)
         change_descriptions(wikidata_item, wikibase_item)
         wikidata_link(wikibase_item, wikidata_item)
-    if (statements == True):
+    if statements:
         changeSiteLinks(wikidata_item, wikibase_item)
         changeClaims(wikidata_item,wikibase_item)
     return wikibase_item
@@ -1045,7 +1073,6 @@ def changeProperty(wikidata_item, wikibase_repo, statements):
         changeLabels(wikidata_item,wikibase_item)
         changeAliases(wikidata_item,wikibase_item)
         change_descriptions(wikidata_item, wikibase_item)
-        wikidata_link(wikibase_item, wikidata_item)
     if statements:
         changeClaims(wikidata_item,wikibase_item)
     return wikibase_item
