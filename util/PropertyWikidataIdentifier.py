@@ -15,7 +15,7 @@ class PropertyWikidataIdentifier:
     def get(self, wikibase_repo):
         wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype='external-id')
         try:
-            mylabels = {"en": "Wikidata Q-ID"}
+            mylabels = {"en": "Wikidata QID"}
             wikibase_item.editLabels(mylabels, summary=u'Insert a property to have a wikidata identifier')
             self.itemIdentifier = str(wikibase_item.getID())
         except (APIError, pywikibot.exceptions.OtherPageSaveError) as e:
@@ -26,7 +26,7 @@ class PropertyWikidataIdentifier:
             else:
                 print("This should not happen 1")
         try:
-            mylabels = {"en": "Wikidata P-ID"}
+            mylabels = {"en": "Wikidata PID"}
             wikibase_item.editLabels(mylabels, summary=u'Insert a property to have a wikidata identifier')
             self.propertyIdentifier = str(wikibase_item.getID())
         except (APIError, pywikibot.exceptions.OtherPageSaveError) as e:
