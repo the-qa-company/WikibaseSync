@@ -24,10 +24,12 @@ config2.usernames['my']['my'] = 'WikidataUpdater'
 #connect to the wikibase
 wikibase = pywikibot.Site("my", "my")
 wikibase_repo = wikibase.data_repository()
+wikibase_repo.login()
 
 #connect to wikidata
 wikidata = pywikibot.Site("wikidata", "wikidata")
 wikidata_repo = wikidata.data_repository()
+wikibase_repo.login()
 
 from util.util import changeItem
 
