@@ -331,7 +331,7 @@ class WikibaseImporter:
                         wikibase_propertyId = wikibase_claim.get('property')
                         wikibase_text = wikibase_claim.get('datavalue').get('value')
                         wikidata_text = wikidata_claim.get('datavalue').get('value')
-                        # print(id.get_id(wikidata_propertyId),'--',wikibase_propertyId,'--',wikibase_text, '--- ', wikidata_text,  wikibase_text == wikidata_text, id.get_id(wikidata_propertyId) == wikibase_propertyId)
+                        #print(self.id.get_id(wikidata_propertyId),'--',wikibase_propertyId,'--',wikibase_text, '--- ', wikidata_text,  wikibase_text == wikidata_text)
                         if wikibase_text == wikidata_text:
                             found_equal_value = True
                 # GLOBAL-COORDINATE
@@ -577,12 +577,12 @@ class WikibaseImporter:
                 wikidata_text = wikidata_claim.get('datavalue').get('value').get('text')
                 wikidata_language = wikidata_claim.get('datavalue').get('value').get('language')
                 # HACK
-                if wikidata_language in languages:
-                    # print(wikidata_text, "---", wikidata_language)
-                    target = pywikibot.WbMonolingualText(text=wikidata_text, language=wikidata_language)
-                    claim.setTarget(target)
-                    claim.setRank(wikidata_claim.get('rank'))
-                    return claim
+                #
+                # print(wikidata_text, "---", wikidata_language)
+                target = pywikibot.WbMonolingualText(text=wikidata_text, language=wikidata_language)
+                claim.setTarget(target)
+                claim.setRank(wikidata_claim.get('rank'))
+                return claim
             # GLOBE-COORDINATES
             elif wikidata_claim.get('datatype') == 'globe-coordinate':
                 wikidata_latitude = wikidata_claim.get('datavalue').get('value').get('latitude')
@@ -1059,7 +1059,7 @@ class WikibaseImporter:
         except pywikibot.exceptions.UnknownSite as e:
             print("There is a problem fetching an entity, this should ideally not occur")
             return
-        print("Change Entity", wikidata_item.getID())
+        print("Change Entity ", wikidata_item.getID())
         if not self.id.contains_id(wikidata_item.getID()):
             new_id = self.importItem(wikidata_item)
             wikibase_item = pywikibot.ItemPage(wikibase_repo, new_id)
