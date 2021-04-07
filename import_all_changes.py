@@ -1,5 +1,7 @@
 #configuration for pywikibot
 import os
+import time
+
 import pywikibot
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pywikibot import config2
@@ -23,15 +25,24 @@ wikidata = pywikibot.Site("wikidata", "wikidata")
 wikidata_repo = wikidata.data_repository()
 
 #import an item
-from util.util import changeItem, changeProperty, importProperty
+from util.util import WikibaseImporter
+wikibase_importer = WikibaseImporter(wikibase_repo,wikidata_repo)
 
 sparql = SPARQLWrapper("http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql")
 query = """
-           select distinct ?id where {
-                ?s <https://linkedopendata.eu/prop/direct/P1> ?id .
-                ?s ?p ?o .                                     
-                FILTER(STRSTARTS(STR(?p), "https://linkedopendata.eu/prop/direct/") && ?p != <https://linkedopendata.eu/prop/direct/P1> && STRSTARTS(STR(?s), "https://linkedopendata.eu/entity/Q"))
-            } order by desc(?id)
+           # select distinct ?id where {
+           #      ?s <https://linkedopendata.eu/prop/direct/P1> ?id .
+           #      ?s ?p ?o .                                     
+           #      FILTER(STRSTARTS(STR(?p), "https://linkedopendata.eu/prop/direct/") && ?p != <https://linkedopendata.eu/prop/direct/P1> && STRSTARTS(STR(?s), "https://linkedopendata.eu/entity/Q"))
+           #  } order by desc(?id)
+            SELECT ?s1 ?id WHERE {
+           ?s1  <https://linkedopendata.eu/prop/direct/P1>  ?id .
+           {SELECT DISTINCT ?s1  WHERE {         
+   ?s1  <https://linkedopendata.eu/prop/P35> ?blank . ?blank <https://linkedopendata.eu/prop/statement/P35> <https://linkedopendata.eu/entity/Q196899> .         
+   ?s1  <https://linkedopendata.eu/prop/direct/P1>  ?id .  
+    ?s1 <https://linkedopendata.eu/prop/P35> ?blank2 . ?blank2 <https://linkedopendata.eu/prop/statement/P35> ?prop
+ }  group by ?s1 having(count(?prop) = 1)}}
+
         """
 sparql.setQuery(query)
 sparql.setReturnFormat(JSON)
@@ -46,8 +57,22 @@ for result in results['results']['bindings']:
     wikidata_item = pywikibot.ItemPage(wikidata_repo, id)
     try:
         wikidata_item.get()
-        changeItem(wikidata_item, wikibase_repo, True)
+        wikibase_importer.change_item(wikidata_item, wikibase_repo, True)
     except pywikibot.exceptions.IsRedirectPage as e:
         print("THIS IS A REDIRECT PAGE "+id)
-        print(e)
+        time.sleep(5)
+        sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+        query = "select ?id where { <http://www.wikidata.org/entity/"+id+"> <http://www.w3.org/2002/07/owl#sameAs> ?id . }"
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        new_results = sparql.query().convert()
+        for new_result in new_results['results']['bindings']:
+            newId = new_result['id']['value'].replace("http://www.wikidata.org/entity/","")
+            print("SEARCHING THE NEW ID ",newId)
+            wikidata_item = pywikibot.ItemPage(wikidata_repo, newId)
+            try:
+                wikidata_item.get()
+                wikibase_importer.change_item_given_id(wikidata_item, result['s1']['value'].replace("https://linkedopendata.eu/entity/",""), wikibase_repo, True)
+            except pywikibot.exceptions.IsRedirectPage as e:
+                print("THIS SHOULD NOT HAPPEN")
 

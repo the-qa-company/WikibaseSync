@@ -1077,6 +1077,19 @@ class WikibaseImporter:
             self.changeClaims(wikidata_item, wikibase_item)
         return wikibase_item
 
+    def change_item_given_id(self, wikidata_item, id, wikibase_repo, statements):
+        print("This entity corresponds to ", id)
+        wikibase_item = pywikibot.ItemPage(wikibase_repo, id)
+        wikibase_item.get()
+        self.changeLabels(wikidata_item, wikibase_item)
+        self.changeAliases(wikidata_item, wikibase_item)
+        self.change_descriptions(wikidata_item, wikibase_item)
+        self.wikidata_link(wikibase_item, wikidata_item)
+        if statements:
+            self.changeSiteLinks(wikidata_item, wikibase_item)
+            self.changeClaims(wikidata_item, wikibase_item)
+
+
     def change_property(self, wikidata_item, wikibase_repo, statements):
         print("Change Property", wikidata_item.getID())
         wikidata_item.get()
