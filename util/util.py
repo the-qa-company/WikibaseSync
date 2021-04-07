@@ -10,8 +10,6 @@ from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
 languages = ["bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "lb", "lt", "lv", "mt",
              "nl", "pl", "pt", "ro", "sk", "sl", "sv", "tr"]
 
-
-
 class WikibaseImporter:
     def __init__(self, wikibase_repo, wikidata_repo):
         self.wikibase_repo = wikibase_repo

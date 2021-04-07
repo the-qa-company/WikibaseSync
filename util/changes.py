@@ -6,8 +6,6 @@ def recent_changes(rccontinue, minutes, url ="https://wikidata.org/w/api.php"):
     time = datetime.now(timezone.utc) - timedelta(minutes=minutes)
     S = requests.Session()
 
-
-
     parameters = {
         "format": "json",
         "rcprop": "title",
@@ -22,7 +20,6 @@ def recent_changes(rccontinue, minutes, url ="https://wikidata.org/w/api.php"):
     R = S.get(url=url, params=parameters)
     data = R.json()
     S.close()
-
 
     date_time_obj = datetime.strptime(data['continue']['rccontinue'].split('|')[0], '%Y%m%d%H%M%S').replace(tzinfo=timezone.utc)
     date_time_obj = date_time_obj.astimezone(timezone.utc)
