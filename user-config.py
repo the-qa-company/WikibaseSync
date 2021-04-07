@@ -1,7 +1,7 @@
 user_families_paths = ['./config']
 mylang = "wikidata"
 family = "wikidata"
-usernames['my']['my'] = u'WikidataUpdater'
+usernames['my']['my'] = u'BotName'
 password_file = "user-password.py"
 minthrottle = 0
 maxthrottle = 0
