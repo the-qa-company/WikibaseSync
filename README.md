@@ -1,4 +1,4 @@
-# Wikibase Editor documentation
+# WikibaseSync documentation
 
 # Installation remarks
 - ensure you have python3 and `sudo yum install python3-devel` or `sudo apt install python3-dev`
