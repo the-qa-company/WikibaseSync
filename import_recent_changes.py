@@ -11,6 +11,10 @@ logging.getLogger('pywiki').disabled
 
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
+import configparser
+app_config = configparser.ConfigParser()
+app_config.read('config/application.config.ini')
+
 
 family = 'my'
 mylang = 'my'
@@ -19,7 +23,7 @@ if not os.path.isfile(familyfile):
   print ("family file %s is missing" % (familyfile))
 config2.register_family_file(family, familyfile)
 config2.password_file = "user-password.py"
-config2.usernames['my']['my'] = 'WikidataUpdater'
+config2.usernames['my']['my'] = app_config.get('wikibase', 'user')
 
 #connect to the wikibase
 wikibase = pywikibot.Site("my", "my")
@@ -37,7 +41,7 @@ identifier = PropertyWikidataIdentifier()
 identifier.get(wikibase_repo)
 print('Wikidata Item Identifier',identifier.itemIdentifier)
 
-idSparql = IdSparql("http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql", identifier.itemIdentifier, identifier.propertyIdentifier)
+idSparql = IdSparql(app_config.get('wikibase', 'sparqlEndPoint'), identifier.itemIdentifier, identifier.propertyIdentifier)
 idSparql.load()
 
 #grab all entities that changed
