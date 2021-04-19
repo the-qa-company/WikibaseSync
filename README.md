@@ -1,7 +1,6 @@
 # WikibaseSync documentation
-This is an open-source project developed by [QA-Company](https://www.qanswer.eu/). You can use this project to sync Wikidata Items and Properties with your arbitrary Wikibase. 
+This is an open-source project developed by [The QA Company](https://the-qa-company.com). You can use this project to sync Wikidata Items and Properties with your arbitrary Wikibase. 
 ## Features
-* Create items and properties with CSV files
 * Import Wikidata items and Properties
 * Track the changes on Wikidata and Keep synchronized
 * Monitor the changes in Wikibase and import corresponding Wikidata properties and statements. etc 
