@@ -5,6 +5,10 @@ import time
 import pywikibot
 from SPARQLWrapper import SPARQLWrapper, JSON
 from pywikibot import config2
+import configparser
+app_config = configparser.ConfigParser()
+app_config.read('config/application.config.ini')
+
 
 family = 'my'
 mylang = 'my'
@@ -13,7 +17,7 @@ if not os.path.isfile(familyfile):
   print ("family file %s is missing" % (familyfile))
 config2.register_family_file(family, familyfile)
 config2.password_file = "user-password.py"
-config2.usernames['my']['my'] = 'WikidataUpdater'
+config2.usernames['my']['my'] = app_config.get('wikibase', 'user')
 
 #connect to the wikibase
 wikibase = pywikibot.Site("my", "my")
@@ -28,7 +32,8 @@ wikidata_repo = wikidata.data_repository()
 from util.util import WikibaseImporter
 wikibase_importer = WikibaseImporter(wikibase_repo,wikidata_repo)
 
-sparql = SPARQLWrapper("http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql")
+sparql = SPARQLWrapper(app_config.get('wikibase', 'sparqlEndPoint'))
+
 query = """
            # select distinct ?id where {
            #      ?s <https://linkedopendata.eu/prop/direct/P1> ?id .
@@ -36,11 +41,11 @@ query = """
            #      FILTER(STRSTARTS(STR(?p), "https://linkedopendata.eu/prop/direct/") && ?p != <https://linkedopendata.eu/prop/direct/P1> && STRSTARTS(STR(?s), "https://linkedopendata.eu/entity/Q"))
            #  } order by desc(?id)
             SELECT ?s1 ?id WHERE {
-           ?s1  <https://linkedopendata.eu/prop/direct/P1>  ?id .
+           ?s1  <"""+app_config.get('wikibase', 'propertyUri')+"""/direct/P1>  ?id .
            {SELECT DISTINCT ?s1  WHERE {         
-   ?s1  <https://linkedopendata.eu/prop/P35> ?blank . ?blank <https://linkedopendata.eu/prop/statement/P35> <https://linkedopendata.eu/entity/Q196899> .         
-   ?s1  <https://linkedopendata.eu/prop/direct/P1>  ?id .  
-    ?s1 <https://linkedopendata.eu/prop/P35> ?blank2 . ?blank2 <https://linkedopendata.eu/prop/statement/P35> ?prop
+   ?s1  <"""+app_config.get('wikibase', 'propertyUri')+"""/P35> ?blank . ?blank <"""+app_config.get('wikibase', 'propertyUri')+"""/statement/P35> <"""+app_config.get('wikibase', 'entityUri')+"""/Q196899> .         
+   ?s1  <"""+app_config.get('wikibase', 'propertyUri')+"""/direct/P1>  ?id .  
+    ?s1 <"""+app_config.get('wikibase', 'propertyUri')+"""/P35> ?blank2 . ?blank2 <"""+app_config.get('wikibase', 'propertyUri')+"""/statement/P35> ?prop
  }  group by ?s1 having(count(?prop) = 1)}}
 
         """

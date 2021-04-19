@@ -3,6 +3,7 @@ from decimal import Decimal
 import json
 import pywikibot
 from pywikibot.page import Claim
+import configparser
 
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
@@ -16,7 +17,9 @@ class WikibaseImporter:
         self.wikidata_repo = wikidata_repo
         self.identifier = PropertyWikidataIdentifier()
         self.identifier.get(wikibase_repo)
-        endpoint = "http://query.linkedopendata.eu/bigdata/namespace/wdq/sparql"
+        appConfig = configparser.ConfigParser()
+        appConfig.read('config/application.config.ini')
+        endpoint = appConfig.get('wikibase','sparqlEndPoint')
         self.id = IdSparql(endpoint, self.identifier.itemIdentifier, self.identifier.propertyIdentifier)
         self.id.load()
 
