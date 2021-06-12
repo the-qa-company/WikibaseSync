@@ -9,6 +9,9 @@ from __future__ import absolute_import, division, unicode_literals
 
 from pywikibot import config
 from pywikibot import family
+import configparser
+app_config = configparser.ConfigParser()
+app_config.read('config/application.config.ini')
 
 
 # The Wikidata family
@@ -19,7 +22,7 @@ class Family(family.WikimediaFamily):
     name = 'my'
 
     langs = {
-         'my': 'linkedopendata.eu',
+        'my': app_config.get('wikibase', 'domain'),
     }
 
     interwiki_forward = 'wikipedia'
@@ -62,9 +65,10 @@ class Family(family.WikimediaFamily):
         """Default globe for Coordinate datatype."""
         return 'earth'
 
+
     def protocol(self, code):
         return {
-            'my': 'https',
+            'my': app_config.get('wikibase', 'protocol'),
         }[code]
 
     def globes(self, code):

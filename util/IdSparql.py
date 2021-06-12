@@ -1,6 +1,7 @@
 # this class makes the correspondence between Wikidata entities and entities in the Wikibase using the external
 # identifier for Wikidata
 from SPARQLWrapper import SPARQLWrapper, JSON
+import configparser
 
 
 class IdSparql:
@@ -10,14 +11,16 @@ class IdSparql:
         self.endpoint = endpoint
         self.item_identifier = item_identifier
         self.property_identifier = property_identifier
+        self.app_config = configparser.ConfigParser()
+        self.app_config.read('config/application.config.ini')
 
     def load(self):
         sparql = SPARQLWrapper(self.endpoint)
         query = """
-                    select ?item ?id where {
-                        ?item <https://linkedopendata.eu/prop/direct/""" + self.item_identifier + """> ?id
-                    }
-                """
+                            select ?item ?id where {
+                                ?item <""" + self.app_config.get('wikibase','propertyUri') + """/direct/""" + self.item_identifier + """> ?id
+                            }
+                        """
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
@@ -27,10 +30,10 @@ class IdSparql:
             if id.startswith('Q'):
                 self.mapEntity[result['id']['value']] = id
         query = """
-                            select ?item ?id where {
-                                ?item <https://linkedopendata.eu/prop/direct/""" + self.property_identifier + """> ?id
-                            }
-                        """
+                    select ?item ?id where {
+                        ?item <""" + self.app_config.get('wikibase','propertyUri') + """/direct/""" + self.property_identifier + """> ?id
+                    }
+                """
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
