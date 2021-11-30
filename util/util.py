@@ -949,7 +949,7 @@ class WikibaseImporter:
                             edit_where_claim_was_added = i - 1
                             break
                     # print("User that added this claim ", revisions[edit_where_claim_was_added]['user'])
-                    if revisions[edit_where_claim_was_added]['user'] != "WikidataUpdater":
+                    if revisions[edit_where_claim_was_added]['user'] != appConfig.get('wikibase','user'):
                         not_remove.append(claimToRemove)
         for c in not_remove:
             claimsToRemove.remove(c)
