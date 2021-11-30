@@ -24,7 +24,7 @@ This tool is actively used at [https://linkedopendata.eu](https://linkedopendata
  2. Go to "Special Pages" -> "Bot passwords" and type the name of your bot
  3. Give him the follwing rights: "High-volume editing", "Edit existing pages" and "Create, edit, and move pages"
  4. Copy your username in "user-config.py"
- 5. Copy the name of the bot and the password in "user-password.py"
+ 5. Copy your username, the name of the bot and the password in "user-password.py"
  6. Update the application.config.ini  [`config/application.config.ini`]
      
 ### Application config
