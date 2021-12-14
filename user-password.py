@@ -1,1 +1,1 @@
-(u'BotName', BotPassword(u'BotName', u'BotPassword'))
+("Admin", BotPassword("wikicom", "bot password"))

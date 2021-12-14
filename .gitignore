@@ -3,7 +3,7 @@ pywikibot.lwp
 throttle.ctrl
 apicache-py3/
 .idea/
-util/__pycache__/
+utilities/__pycache__/
 venv
 *.pyc
 *log*
