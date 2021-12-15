@@ -558,7 +558,7 @@ class WikibaseImporter:
                 wikidata_objectId = 'P' + str(
                     wikidata_claim.get('datavalue').get('value').get('numeric-id'))
                 if not self.id.contains_id(wikidata_objectId):
-                    item = pywikibot.PropertyPage(self.self.wikibase_repo, wikidata_objectId)
+                    item = pywikibot.PropertyPage(self.wikidata_repo, wikidata_objectId)
                     try:
                         item.get()
                         self.importProperty(item)
