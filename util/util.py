@@ -1097,6 +1097,8 @@ class WikibaseImporter:
         wikibase_item = None
         if not self.id.contains_id(wikidata_item.getID()):
             new_id = self.importProperty(wikidata_item)
+            wikibase_item = pywikibot.PropertyPage(wikibase_repo, new_id, datatype=wikidata_item.type)
+            wikibase_item.get()
         else:
             print("Entering here")
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, self.id.get_id(wikidata_item.getID()),
