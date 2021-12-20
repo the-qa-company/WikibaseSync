@@ -6,7 +6,7 @@ This is an open-source project developed by [The QA Company](https://the-qa-comp
 This tool is actively used at [https://linkedopendata.eu](https://linkedopendata.eu).
 
 ## Features
-* Import Wikidata items and Properties
+* Import Wikidata Items and Properties
 * Track the changes on Wikidata and Keep synchronized
 * Monitor the changes in Wikibase and import corresponding Wikidata properties and statements. etc 
 
@@ -47,3 +47,9 @@ Define the Wikibase properties in this file.
 > propertyUri=http://wikibase.svc/prop
 > 
 >  ```
+
+## Usage
+ - `python import_one.py Q1` to import Q1 from Wikidata (if already imported the entity will be put in sync)
+ - `python import_one.py P31` to import P31 from Wikidata (if already imported the entity will be put in sync)
+ - `python import_all_changes.py` to sync all currently imported items
+ - `python import_recent_changes.py` to sync all entities that where changed in Wikidata (calling this recursivly allows to maintain all instances and properties in sync with Wikidata) 
