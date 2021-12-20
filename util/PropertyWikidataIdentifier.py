@@ -28,7 +28,7 @@ class PropertyWikidataIdentifier:
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype='external-id')
             data = {}
             mylabels = {"en": "Wikidata QID"}
-            mydescriptions = {"en": "Corresponding QID in Wikidata"}
+            mydescriptions = {"en": "Corresponding QID in Wikidata (do not change the label of this property otherwise you will break WikibaseSync)"}
             data['labels'] = mylabels
             data['descriptions'] = mydescriptions
             wikibase_item.editEntity(data, summary=u'Insert a property to have a wikidata identifier')
@@ -39,7 +39,7 @@ class PropertyWikidataIdentifier:
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype='external-id')
             data = {}
             mylabels = {"en": "Wikidata PID"}
-            mydescriptions = {"en": "id in wikidata of the corresponding properties"}
+            mydescriptions = {"en": "id in wikidata of the corresponding properties (do not change this property otherwise you will break WikibaseSync)"}
             data['labels'] = mylabels
             data['descriptions'] = mydescriptions
             wikibase_item.editEntity(data, summary=u'Insert a property to have a wikidata identifier')
