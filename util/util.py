@@ -22,7 +22,6 @@ class WikibaseImporter:
         endpoint = self.appConfig.get('wikibase','sparqlEndPoint')
         self.id = IdSparql(endpoint, self.identifier.itemIdentifier, self.identifier.propertyIdentifier)
         self.id.load()
-        print(self.id)
 
     # transforms the json to an item
     def jsonToItem(self, wikibase_repo, json_object):
