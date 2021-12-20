@@ -52,4 +52,4 @@ Define the Wikibase properties in this file.
  - `python import_one.py Q1` to import Q1 from Wikidata (if already imported the entity will be put in sync)
  - `python import_one.py P31` to import P31 from Wikidata (if already imported the entity will be put in sync)
  - `python import_all_changes.py` to sync all currently imported items
- - `python import_recent_changes.py` to sync all entities that where changed in Wikidata (calling this recursivly allows to maintain all instances and properties in sync with Wikidata) 
+ - `python import_recent_changes.py` to sync all entities that where changed in Wikidata (calling this regularly allows to maintain all instances and properties in sync with Wikidata) 
