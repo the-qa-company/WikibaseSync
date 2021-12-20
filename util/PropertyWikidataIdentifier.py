@@ -17,7 +17,7 @@ class PropertyWikidataIdentifier:
         try:
             data = {}
             mylabels = {"en": "Wikidata QID"}
-            mydescriptions = {"en": "Corresponding QID in Wikidata"}
+            mydescriptions = {"en": "Corresponding QID in Wikidata (do not change the label of this property, otherwise you will breack WikibaseSync)"}
             data['labels'] = mylabels
             data['descriptions'] = mydescriptions
             wikibase_item.editEntity(data, summary=u'Insert a property to have a wikidata identifier')
@@ -29,13 +29,14 @@ class PropertyWikidataIdentifier:
                 self.itemIdentifier = str(x.group(0).replace("[[Property:", "").split("|")[0])
             else:
                 print("This should not happen 1")
+        wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype='external-id')
         try:
             data = {}
             mylabels = {"en": "Wikidata PID"}
             mydescriptions = {"en": "id in wikidata of the corresponding properties"}
             data['labels'] = mylabels
             data['descriptions'] = mydescriptions
-            wikibase_item.editEntity(data, summary=u'Insert a property to have a wikidata identifier')
+            wikibase_item.editEntity(data, summary=u'Insert a property to have a wikidata identifier (do not change the label of this property, otherwise you will breack WikibaseSync)')
             self.propertyIdentifier = str(wikibase_item.getID())
         except (APIError, pywikibot.exceptions.OtherPageSaveError) as e:
             # this happens when a property with the same label already exists
