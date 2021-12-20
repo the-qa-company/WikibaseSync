@@ -11,7 +11,7 @@ This tool is actively used at [https://linkedopendata.eu](https://linkedopendata
 * Keep external links to Wikidata 
 
 ## Installation remarks
-
+This is just a standard setup of the python repo using virtual enviroments
 - ensure you have python3 and `sudo yum install python3-devel` or `sudo apt install python3-dev`
 - `sudo apt install virtualenv`
 - `virtualenv venv --python=python3`
@@ -19,7 +19,7 @@ This tool is actively used at [https://linkedopendata.eu](https://linkedopendata
 - `pip install -r requirements.txt`
 
 ## Setup
-
+This is the standard procedure to create a Bot Account on Wikibase. The Account is responsible for making the edits.
  1. Login in the Wikibase instance (for example using the **admin** account)
  2. Go to "Special Pages" -> "Bot passwords" and type the name of your bot (for example **WikidataUpdater**)
  3. Give him the follwing rights: "High-volume editing", "Edit existing pages" and "Create, edit, and move pages"
