@@ -34,7 +34,7 @@ Define the Wikibase properties in this file.
 >
 > located in `config/application.config.ini` in the repository 
 >   
->  Customize this file based on your Wikibase properties. Check the example properties below (it matches the default properties of a docker Wikibase installation)
+>  Customize this file based on your Wikibase properties. Check the example properties below (it matches the default properties of a [Wikibase Docker installation](https://github.com/wmde/wikibase-release-pipeline))
 > 
 >  ```
 > [wikibase]
