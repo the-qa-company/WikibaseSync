@@ -558,7 +558,7 @@ class WikibaseImporter:
                 wikidata_objectId = 'P' + str(
                     wikidata_claim.get('datavalue').get('value').get('numeric-id'))
                 if not self.id.contains_id(wikidata_objectId):
-                    item = pywikibot.PropertyPage(self.self.wikibase_repo, wikidata_objectId)
+                    item = pywikibot.PropertyPage(self.wikidata_repo, wikidata_objectId)
                     try:
                         item.get()
                         self.importProperty(item)
@@ -949,7 +949,7 @@ class WikibaseImporter:
                             edit_where_claim_was_added = i - 1
                             break
                     # print("User that added this claim ", revisions[edit_where_claim_was_added]['user'])
-                    if revisions[edit_where_claim_was_added]['user'] != "WikidataUpdater":
+                    if revisions[edit_where_claim_was_added]['user'] != appConfig.get('wikibase','user'):
                         not_remove.append(claimToRemove)
         for c in not_remove:
             claimsToRemove.remove(c)
@@ -1097,6 +1097,8 @@ class WikibaseImporter:
         wikibase_item = None
         if not self.id.contains_id(wikidata_item.getID()):
             new_id = self.importProperty(wikidata_item)
+            wikibase_item = pywikibot.PropertyPage(wikibase_repo, new_id, datatype=wikidata_item.type)
+            wikibase_item.get()
         else:
             print("Entering here")
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, self.id.get_id(wikidata_item.getID()),

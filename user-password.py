@@ -1,1 +1,1 @@
-(u'BotName', BotPassword(u'BotName', u'BotPassword'))
+(u'admin', BotPassword(u'WikibaseUpdater', u'BotPassword'))
