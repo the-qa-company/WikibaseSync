@@ -8,7 +8,7 @@ This tool is actively used at [https://linkedopendata.eu](https://linkedopendata
 ## Features
 * Import Wikidata Items and Properties
 * Track the changes on Wikidata and Keep synchronized
-* Monitor the changes in Wikibase and import corresponding Wikidata properties and statements. etc 
+* Keep external links to Wikidata 
 
 ## Installation remarks
 
