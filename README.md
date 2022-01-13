@@ -6,12 +6,12 @@ This is an open-source project developed by [The QA Company](https://the-qa-comp
 This tool is actively used at [https://linkedopendata.eu](https://linkedopendata.eu).
 
 ## Features
-* Import Wikidata items and Properties
+* Import Wikidata Items and Properties
 * Track the changes on Wikidata and Keep synchronized
-* Monitor the changes in Wikibase and import corresponding Wikidata properties and statements. etc 
+* Keep external links to Wikidata 
 
 ## Installation remarks
-
+This is just a standard setup of the python repo using virtual enviroments
 - ensure you have python3 and `sudo yum install python3-devel` or `sudo apt install python3-dev`
 - `sudo apt install virtualenv`
 - `virtualenv venv --python=python3`
@@ -19,7 +19,7 @@ This tool is actively used at [https://linkedopendata.eu](https://linkedopendata
 - `pip install -r requirements.txt`
 
 ## Setup
-
+This is the standard procedure to create a Bot Account on Wikibase. The Account is responsible for making the edits.
  1. Login in the Wikibase instance (for example using the **admin** account)
  2. Go to "Special Pages" -> "Bot passwords" and type the name of your bot (for example **WikidataUpdater**)
  3. Give him the follwing rights: "High-volume editing", "Edit existing pages" and "Create, edit, and move pages"
@@ -34,7 +34,7 @@ Define the Wikibase properties in this file.
 >
 > located in `config/application.config.ini` in the repository 
 >   
->  Customize this file based on your Wikibase properties. Check the example properties below (it matches the default properties of a docker Wikibase installation)
+>  Customize this file based on your Wikibase properties. Check the example properties below (it matches the default properties of a [Wikibase Docker installation](https://github.com/wmde/wikibase-release-pipeline))
 > 
 >  ```
 > [wikibase]
@@ -47,3 +47,9 @@ Define the Wikibase properties in this file.
 > propertyUri=http://wikibase.svc/prop
 > 
 >  ```
+
+## Usage
+ - `python import_one.py Q1` to import Q1 from Wikidata (if already imported the entity will be put in sync)
+ - `python import_one.py P31` to import P31 from Wikidata (if already imported the entity will be put in sync)
+ - `python import_all_changes.py` to sync all currently imported items
+ - `python import_recent_changes.py` to sync all entities that where changed in Wikidata (calling this regularly allows to maintain all instances and properties in sync with Wikidata) 
