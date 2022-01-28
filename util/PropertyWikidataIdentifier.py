@@ -11,8 +11,10 @@ def wikiitemexists(wikibase_repo, label):
     params = {'action': 'wbsearchentities', 'format': 'json',
               'language': 'en', 'type': 'property', 'limit':1,
               'search': label}
+    print(params)
     request = api.Request(site=wikibase_repo, parameters=params)
     result = request.submit()
+    print(result)
     return result['search']
 
 class PropertyWikidataIdentifier:
