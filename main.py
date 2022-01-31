@@ -1,11 +1,10 @@
-from flask import Flask #
+from flask import Flask
 from flask_restful import Api, Resource
 from flask_cors import CORS, cross_origin
 import requests
 
 app = Flask(__name__)
 CORS(app)
-
 
 api = Api(app)
 
@@ -27,25 +26,34 @@ class Sync(Resource):
 
 # import one
 class ImportOne(Resource):
-     def get(self, q_id):
+    def get(self, q_id):
         from api_import_one import mth_import_one
         response = mth_import_one(q_id)
         if response:
             payload = {"status_code": 200, "message": "Import successful"}
         else:
-            payload = {"status_code": 500, "message": "Import could not be completed"}
+            payload = {"status_code": 500,
+                       "message": "Import could not be completed"}
         return payload
 
 
 class WikiDataQuery(Resource):
     def get(self, query_string):
-        url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" + query_string + "&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property"
+
+        # general english
+        url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" + \
+              query_string + "&format=json&errorformat=plaintext&language=en&uselang=en&type=property"
+
+        # british english
+        # url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" + query_string + "&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property"
+
         response = requests.get(url)
         response = response.json()
         if response:
             payload = {"status_code": 200, "response": response}
         else:
-            payload = {"status_code": 500, "message": "Import could not be completed"}
+            payload = {"status_code": 500,
+                       "message": "Import could not be completed"}
         return payload
 
 
