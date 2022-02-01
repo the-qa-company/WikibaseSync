@@ -7,24 +7,6 @@ var _propertyLabel = ""
 
 var _wikibasesync_base_url = "http://127.0.0.1:5000/";
 
-(function (mw, $) {
-
-    try{
-    var __inputWithSuggestion = $('#new .ui-entityselector-input').val();
-
-    if (!__inputWithSuggestion) {
-        $(".mez-appended-button").remove();
-        console.log('clone button removed');
-    }
-
-    var __focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
-    if (!__focusInput) {
-        $(".mez-appended-button").remove();
-        console.log('clone button removed');
-    }
-    }catch(err){}
-}(mediaWiki, jQuery));
-
 
 (function (mw, $) {
     var _parentEl = document.getElementsByClassName('wikibase-entityview wb-item')
@@ -44,21 +26,14 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                             var notFoundEl = document.getElementsByClassName('ui-ooMenu-item ui-ooMenu-customItem ui-entityselector-notfound')[0];
                             console.log(notFoundEl);
 
-
                             //if (entries.length == 3) {
                             //console.log(added_node);
                             focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
                             console.log(focusInput);
-
-                            //always remove clone button while typing
-                            $("#new .ui-entityselector-input").on("keydown", "", function (e) {
-                                console.log("key down");
-                                $(".mez-appended-button").remove();
-                            });
                             //}
                             if (focusInput) {
                                 console.log('here');
-                                $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source: 
+                                $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source:
                                     source: function (request, response) {
                                         console.log('Request term: ' + request.term);
                                         $.ajax({
@@ -94,16 +69,8 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
 
                                 if (inputWithSuggestionParent) {
                                     console.log('new value: ' + _propertyId);
-                                    $(".mez-appended-button").remove();
-                                    inputWithSuggestionParent.append("<button class='mez-appended-button' style='display:block' onclick='cloneAction()'>Clone</button>");
-                                }
-                            }
-                            if (!focusInput) {
-                                //remove clone button
-                                var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
-
-                                if (inputWithSuggestionParent) {
-                                    $(".mez-appended-button").remove();
+                                    $("#mez-appended-button").remove();
+                                    inputWithSuggestionParent.append("<button id='mez-appended-button' onclick='cloneAction()'>Clone</button>");
                                 }
                             }
 
@@ -119,7 +86,7 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
     observer.observe(document.querySelector("body"), { subtree: true, childList: true });
 }(mediaWiki, jQuery));
 
-//ui-menu-item. 
+//ui-menu-item.
 //clone button clicked
 function cloneAction() {
     //clone action called
@@ -139,13 +106,7 @@ function cloneAction() {
         },
         success: function (data) {
             console.log(data);
-            //remove clone button
-            var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
 
-            if (inputWithSuggestionParent) {
-                $(".mez-appended-button").remove();
-                console.log('clone button removed');
-            }
             // response($.map(data.response.search, function (item) {
             //     _propertyId = item.id;
             //     _propertyLabel = item.label;

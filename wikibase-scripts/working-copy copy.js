@@ -3,27 +3,32 @@
 
 
 var _propertyId = "";
-var _propertyLabel = ""
+var _propertyLabel = "";
+
+var cloneButtonCounter = 0;
+var propertyDetailArray = [];
+var cloneButtonIdPrefix = 'clone_btn_';
+var currentlyClickedCloneButtonId = '';
 
 var _wikibasesync_base_url = "http://127.0.0.1:5000/";
 
-(function (mw, $) {
+// (function (mw, $) {
 
-    try{
-    var __inputWithSuggestion = $('#new .ui-entityselector-input').val();
+//     try{
+//     var __inputWithSuggestion = $('#new .ui-entityselector-input').val();
 
-    if (!__inputWithSuggestion) {
-        $(".mez-appended-button").remove();
-        console.log('clone button removed');
-    }
+//     if (!__inputWithSuggestion) {
+//         $(".mez-appended-button").remove();
+//         console.log('clone button removed');
+//     }
 
-    var __focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
-    if (!__focusInput) {
-        $(".mez-appended-button").remove();
-        console.log('clone button removed');
-    }
-    }catch(err){}
-}(mediaWiki, jQuery));
+//     var __focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
+//     if (!__focusInput) {
+//         $(".mez-appended-button").remove();
+//         console.log('clone button removed');
+//     }
+//     }catch(err){}
+// }(mediaWiki, jQuery));
 
 
 (function (mw, $) {
@@ -42,7 +47,7 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                         if (entries[0][1].uiOoMenuItem && entries[0][1].uiOoMenuItem._label == "No match was found") {
                             console.log('No found');
                             var notFoundEl = document.getElementsByClassName('ui-ooMenu-item ui-ooMenu-customItem ui-entityselector-notfound')[0];
-                            console.log(notFoundEl);
+                            //console.log(notFoundEl);
 
 
                             //if (entries.length == 3) {
@@ -51,13 +56,27 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                             console.log(focusInput);
 
                             //always remove clone button while typing
+                            //var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
+                            
                             $("#new .ui-entityselector-input").on("keydown", "", function (e) {
                                 console.log("key down");
-                                $(".mez-appended-button").remove();
+                                //$(".mez-appended-button").remove();
+
+                                //find the closest parent that has a button
+                                var closestParentWithButton = $(this).closest(':has(button)');
+                                var closestCloneButton = closestParentWithButton.children('button')[0];
+                                // var closestCloneButtinId = closestCloneButton.attr('id');
+
+                                //.parentsUntil(closest) will call all parents until the closest parent that has a button
+                                // .nextAll('button') will call the buttons that comes only next each parents
+                                // .first() will filter the first one that comes next
+
+                                //var foundButton = $(this).parentsUntil(closestParentWithButton).nextAll('button').first();
+                                console.log(closestCloneButton);
                             });
                             //}
                             if (focusInput) {
-                                console.log('here');
+                                console.log('in focus input');
                                 $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source: 
                                     source: function (request, response) {
                                         console.log('Request term: ' + request.term);
@@ -94,8 +113,30 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
 
                                 if (inputWithSuggestionParent) {
                                     console.log('new value: ' + _propertyId);
+
+                                    //replace classname with the id of the specific applicable element
+
                                     $(".mez-appended-button").remove();
-                                    inputWithSuggestionParent.append("<button class='mez-appended-button' style='display:block' onclick='cloneAction()'>Clone</button>");
+                                    // $(document).ready(function() {
+                                    //     $(".mez-appended-button").click(function(event) {
+                                    //         currentlyClickedCloneButtonId = event.target.id;
+                                    //         alert(currentlyClickedCloneButtonId);
+                                    //         if (currentlyClickedCloneButtonId) {
+                                    //             $("#"+ currentlyClickedCloneButtonId +"").remove();
+                                    //         }
+                                    //     });
+                                    // });
+
+
+                                    
+                                    var currentCount = cloneButtonCounter;
+                                    var myCloneButtonId = cloneButtonIdPrefix + ''+currentCount +'';
+
+                                    //increase button counter
+                                    cloneButtonCounter = cloneButtonCounter+1;
+
+                                    inputWithSuggestionParent.append("<button id="+ myCloneButtonId + " class='mez-appended-button' style='display:block' onclick='cloneAction()'>Clone</button>");
+                                    //pushNewButtonInfo(myCloneButtonId, currentCount);
                                 }
                             }
                             if (!focusInput) {
@@ -103,6 +144,7 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                                 var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
 
                                 if (inputWithSuggestionParent) {
+                                    //replace classname with the id of the specific applicable element
                                     $(".mez-appended-button").remove();
                                 }
                             }
@@ -157,4 +199,11 @@ function cloneAction() {
             // }));
         }
     });
+}
+
+function pushNewButtonInfo(buttonId, arrayKey){
+    //add button info to array
+    propertyDetailArray[arrayKey] = buttonId;
+
+    console.log(propertyDetailArray);
 }
