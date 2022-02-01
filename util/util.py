@@ -73,12 +73,16 @@ class WikibaseImporter:
         mylabels = {}
         for label in wikidata_item.labels:
             if label in languages:
-                # if label != "nqo":
+                revisions_tmp = wikibase_item.revisions(content=True)
+                revisions = []
+                # problem with the revisions_tmp object
+                for h in revisions_tmp:
+                    revisions.append(h)
                 if wikibase_item.getID() != str(-1) and label in wikibase_item.labels:
-                    # print(wikidata_item.labels.get(label), "----", wikibase_item.labels.get(label), "---", wikidata_item.labels.get(label) == wikibase_item.labels.get(label))
                     if not (wikidata_item.labels.get(label) == wikibase_item.labels.get(label)):
-                        # print("Change", wikidata_item.labels.get(label), "----", wikibase_item.labels.get(label))
-                        mylabels[label] = wikidata_item.labels.get(label)
+                        if revisions[0]["user"] == self.appConfig.get('wikibase', 'user'):
+                            mylabels[label] = wikidata_item.labels.get(label)
+
                 else:
                     mylabels[label] = wikidata_item.labels.get(label)
         return mylabels
