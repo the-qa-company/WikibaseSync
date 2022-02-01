@@ -71,13 +71,13 @@ class WikibaseImporter:
     # comparing the labels
     def diffLabels(self, wikidata_item, wikibase_item):
         mylabels = {}
+        revisions_tmp = wikibase_item.revisions(content=True)
+        revisions = []
+        # problem with the revisions_tmp object
+        for h in revisions_tmp:
+            revisions.append(h)
         for label in wikidata_item.labels:
             if label in languages:
-                revisions_tmp = wikibase_item.revisions(content=True)
-                revisions = []
-                # problem with the revisions_tmp object
-                for h in revisions_tmp:
-                    revisions.append(h)
                 if wikibase_item.getID() != str(-1) and label in wikibase_item.labels:
                     if not (wikidata_item.labels.get(label) == wikibase_item.labels.get(label)):
                         if revisions[0]["user"] == self.appConfig.get('wikibase', 'user'):
