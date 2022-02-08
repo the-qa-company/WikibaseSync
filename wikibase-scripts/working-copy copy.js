@@ -6,6 +6,8 @@ var _propertyId = "";
 var _propertyLabel = "";
 
 var cloneButtonCounter = 0;
+var parentIDCounter = 0;
+var autoInputIDCounter = 0;
 var propertyDetailArray = [];
 var cloneButtonIdPrefix = 'clone_btn_';
 var currentlyClickedCloneButtonId = '';
@@ -53,26 +55,55 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                             //if (entries.length == 3) {
                             //console.log(added_node);
                             focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
-                            console.log(focusInput);
+                            //console.log(focusInput);
 
                             //always remove clone button while typing
                             //var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
+                            $("#new .ui-entityselector-input").on("focus", "", function (e) {
+                                var _focused = $(':focus');
+                                console.log(_focused);
+                                $(':focus').attr('id', 'autoCompleteInput'+autoInputIDCounter);
+                                autoInputIDCounter = autoInputIDCounter + 1;
+
+                                //find the closest parent that has a button
+                                $(this).closest(':has(button)').attr('id', 'autoCompleteInputParent'+parentIDCounter);
+                                parentIDCounter = parentIDCounter + 1;
+                            });
                             
                             $("#new .ui-entityselector-input").on("keydown", "", function (e) {
+                                var _focused = $(':focus')
+                                if (_focused.get(0).id === undefined || _focused.get(0).id.length < 5) {
+                                    $(':focus').attr('id', 'autoCompleteInput'+autoInputIDCounter);
+                                autoInputIDCounter = autoInputIDCounter + 1;
+
+                                //find the closest parent that has a button
+                                $(this).closest(':has(button)').attr('id', 'autoCompleteInputParent'+parentIDCounter);
+                                parentIDCounter = parentIDCounter + 1;s
+                                }
+                                
+
+                                var _focused = $(':focus')
+                                
+                                console.log(_focused.get(0).id);
                                 console.log("key down");
                                 //$(".mez-appended-button").remove();
 
                                 //find the closest parent that has a button
                                 var closestParentWithButton = $(this).closest(':has(button)');
-                                var closestCloneButton = closestParentWithButton.children('button')[0];
-                                // var closestCloneButtinId = closestCloneButton.attr('id');
+                                var closestParentWithButtonID = closestParentWithButton.get(0).id;
+                                // closestCloneButton = $(this).parentsUntil(closestParentWithButton).nextAll('button').first();
+                                console.log(closestParentWithButton);
+                                //var closestCloneButton = closestParentWithButton.children('button').eq(0)
+                                var closestCloneButton = $("#"+closestParentWithButtonID).children('button').eq(0)
+                                var closestCloneButtonId = closestCloneButton.get(0).id;
 
                                 //.parentsUntil(closest) will call all parents until the closest parent that has a button
                                 // .nextAll('button') will call the buttons that comes only next each parents
                                 // .first() will filter the first one that comes next
+                                //see https://stackoverflow.com/questions/23784755/jquery-closest-button-after-input/23785154
 
-                                //var foundButton = $(this).parentsUntil(closestParentWithButton).nextAll('button').first();
-                                console.log(closestCloneButton);
+                                console.log(closestCloneButtonId);
+                                $("#"+closestCloneButtonId).remove();
                             });
                             //}
                             if (focusInput) {
