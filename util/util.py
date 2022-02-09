@@ -99,7 +99,7 @@ class WikibaseImporter:
     # comparing the labels
     def diffLabels(self, wikidata_item, wikibase_item):
         """
-            LOADING REVISION HERE IS EFFICIENT, UPDATES TURN OUT SUCCESSFUL SCRIPT ENDS WITH AN EXCEPTION
+            LOADING REVISION HERE IS EFFICIENT, UPDATES TURN OUT SUCCESSFUL ( but script ends with an exception)
             pywikibot.exceptions.NoPage: Page [[my:Item:-1]] doesn't exist.
         """
         revisions_tmp = wikibase_item.revisions(content=True)
