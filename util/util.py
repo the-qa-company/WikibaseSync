@@ -113,27 +113,12 @@ class WikibaseImporter:
             if label in languages:
                 if wikibase_item.getID() != str(-1) and label in wikibase_item.labels:
                     if not (wikidata_item.labels.get(label) == wikibase_item.labels.get(label)):
-                        """
-                            PLEASE NOTE THAT THE USER FOR MAKING REVISIONS/CHANGES DIRECTLY ON THE LOCAL WIKIBASE
-                            INSTANCE MUST HAVE A DIFFERENT USERNAME FROM THE DEFAULT ADMIN FOR THIS FEATURE TO WORK
-                            AS DESIGNED
-                        """
-
-                        """LOADING REVISION HERE IS NOT VERY EFFICIENT BUT THROWS NO ERROR"""
-                        #revisions_tmp = wikibase_item.revisions(content=True)
-                        #revisions = []
-                        ## problem with the revisions_tmp object
-                        #for h in revisions_tmp:
-                        #    revisions.append(h)
 
                         if revisions is None or revisions[0] is None:
                             # no update has been done on label, accept remote update
                             mylabels[label] = wikidata_item.labels.get(label)
                         else:
-                            # print('label')
-                            # print(label)
                             last_update_revision_on_label = self.get_last_label_upate(revisions, label)
-                            # print(last_update_revision_on_label)
                             if last_update_revision_on_label is None:
                                 # no update has been done on label, accept remote update
                                 mylabels[label] = wikidata_item.labels.get(label)
