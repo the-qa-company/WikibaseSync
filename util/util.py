@@ -87,8 +87,6 @@ class WikibaseImporter:
                 index += 1
             elif index > 0:
                 # get revision asterisk string data as dictionary
-                # revision_asterisk = ast.literal_eval(revision['slots']['main']['*'])
-                # revision_asterisk = self.jsonToItem(self.wikibase_repo, revision['slots']['main']['*'])
                 revision_asterisk = json.loads(revision['slots']['main']['*'])
                 if revision_asterisk['labels'][focus_label]['value'] != most_recent_label_value:
                     # the next revision after this is where a change was made
@@ -104,11 +102,18 @@ class WikibaseImporter:
             LOADING REVISION HERE IS EFFICIENT, UPDATES TURN OUT SUCCESSFUL ( but script ends with an exception)
             pywikibot.exceptions.NoPage: Page [[my:Item:-1]] doesn't exist.
         """
-        revisions_tmp = wikibase_item.revisions(content=True)
+
         revisions = []
-        # problem with the revisions_tmp object
-        for h in revisions_tmp:
-            revisions.append(h)
+        try:
+            revisions_tmp = wikibase_item.revisions(content=True)
+            # problem with the revisions_tmp object
+            for h in revisions_tmp:
+                revisions.append(h)
+        except pywikibot.exceptions.NoPage:
+            # pywikibot.exceptions.NoPage: Page [[my:Item:-1]] doesn't exist
+            # No revision
+            pass
+
 
         mylabels = {}
         for label in wikidata_item.labels:
@@ -120,16 +125,18 @@ class WikibaseImporter:
                             # no update has been done on label, accept remote update
                             mylabels[label] = wikidata_item.labels.get(label)
                         else:
-                            last_update_revision_on_label = self.get_last_label_upate(revisions, label)
-                            if last_update_revision_on_label is None:
-                                # no update has been done on label, accept remote update
-                                mylabels[label] = wikidata_item.labels.get(label)
-                            else:
-                                # accept remote update if the last update on the label was made by wikidata updater
-                                # leave current value if update was by a local user/admin
-                                if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
+                            if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
+                                last_update_revision_on_label = self.get_last_label_upate(revisions, label)
+                                if last_update_revision_on_label is None:
+                                    # no update has been done on label, accept remote update
                                     mylabels[label] = wikidata_item.labels.get(label)
-
+                                else:
+                                    # accept remote update if the last update on the label was made by wikidata updater
+                                    # leave current value if update was by a local user/admin
+                                    if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
+                                        mylabels[label] = wikidata_item.labels.get(label)
+                            else:
+                                mylabels[label] = wikidata_item.labels.get(label)
                 else:
                     mylabels[label] = wikidata_item.labels.get(label)
         return mylabels
