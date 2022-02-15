@@ -87,7 +87,9 @@ class WikibaseImporter:
                 index += 1
             elif index > 0:
                 # get revision asterisk string data as dictionary
-                revision_asterisk = ast.literal_eval(revision['slots']['main']['*'])
+                # revision_asterisk = ast.literal_eval(revision['slots']['main']['*'])
+                # revision_asterisk = self.jsonToItem(self.wikibase_repo, revision['slots']['main']['*'])
+                revision_asterisk = json.loads(revision['slots']['main']['*'])
                 if revision_asterisk['labels'][focus_label]['value'] != most_recent_label_value:
                     # the next revision after this is where a change was made
                     return revisions[index - 1]
@@ -122,7 +124,7 @@ class WikibaseImporter:
                             if last_update_revision_on_label is None:
                                 # no update has been done on label, accept remote update
                                 mylabels[label] = wikidata_item.labels.get(label)
-                            if last_update_revision_on_label is not None:
+                            else:
                                 # accept remote update if the last update on the label was made by wikidata updater
                                 # leave current value if update was by a local user/admin
                                 if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
