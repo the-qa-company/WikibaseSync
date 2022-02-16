@@ -1,4 +1,3 @@
-import ast
 import re
 import sys
 from decimal import Decimal
@@ -71,7 +70,7 @@ class WikibaseImporter:
         data['claims'] = claims
         return data
 
-    def get_last_label_upate(self, revisions, focus_label):
+    def get_last_label_update(self, revisions, focus_label):
         """
             for a given label, return the last/most recent revision where it was updated
             :arguments
@@ -81,7 +80,8 @@ class WikibaseImporter:
         """
         index = 0
         # get labels string as dictionary
-        most_recent_label_value = ast.literal_eval(revisions[index]['slots']['main']['*'])['labels'][focus_label]['value']
+        # most_recent_label_value = ast.literal_eval(revisions[index]['slots']['main']['*'])['labels'][focus_label]['value']
+        most_recent_label_value = json.loads(revisions[index]['slots']['main']['*'])['labels'][focus_label]['value']
         for revision in revisions:
             if index == 0:  # focus revision
                 index += 1
@@ -126,7 +126,7 @@ class WikibaseImporter:
                             mylabels[label] = wikidata_item.labels.get(label)
                         else:
                             if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
-                                last_update_revision_on_label = self.get_last_label_upate(revisions, label)
+                                last_update_revision_on_label = self.get_last_label_update(revisions, label)
                                 if last_update_revision_on_label is None:
                                     # no update has been done on label, accept remote update
                                     mylabels[label] = wikidata_item.labels.get(label)
