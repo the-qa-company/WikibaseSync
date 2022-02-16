@@ -1,29 +1,14 @@
 #configuration for pywikibot
 import os
 import pywikibot
-from pywikibot import config2
-
-import logging
 
 from util.get_wikidata_changes import get_wikidata_changes
-
-logging.getLogger('pywiki').disabled
 
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
 import configparser
 app_config = configparser.ConfigParser()
 app_config.read('config/application.config.ini')
-
-
-family = 'my'
-mylang = 'my'
-familyfile=os.path.relpath("./config/my_family.py")
-if not os.path.isfile(familyfile):
-  print ("family file %s is missing" % (familyfile))
-config2.register_family_file(family, familyfile)
-config2.password_file = "user-password.py"
-config2.usernames['my']['my'] = app_config.get('wikibase', 'user')
 
 #connect to the wikibase
 wikibase = pywikibot.Site("my", "my")
@@ -35,7 +20,8 @@ wikidata = pywikibot.Site("wikidata", "wikidata")
 wikidata_repo = wikidata.data_repository()
 wikibase_repo.login()
 
-from util.util import changeItem
+from util.util import WikibaseImporter
+wikibase_importer = WikibaseImporter(wikibase_repo,wikidata_repo)
 
 identifier = PropertyWikidataIdentifier()
 identifier.get(wikibase_repo)
@@ -59,7 +45,7 @@ for rc in recent:
             for wikibase_c in wikibase_item.claims.get(wikibase_claims):
                 count=count+1
         if count > 1:
-            changeItem(wikidata_item, wikibase_repo, True)
+            wikibase_importer.change_item(wikidata_item, wikibase_repo, True)
         else:
             print("Change only the labels")
-            changeItem(wikidata_item, wikibase_repo, False)
+            wikibase_importer.change_item(wikidata_item, wikibase_repo, False)
