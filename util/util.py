@@ -1,4 +1,6 @@
+import ast
 import re
+import sys
 from decimal import Decimal
 import json
 import pywikibot
@@ -11,6 +13,7 @@ from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
 languages = ["bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "lb", "lt", "lv", "mt",
              "nl", "pl", "pt", "ro", "sk", "sl", "sv", "tr"]
 
+
 class WikibaseImporter:
     def __init__(self, wikibase_repo, wikidata_repo):
         self.wikibase_repo = wikibase_repo
@@ -19,7 +22,7 @@ class WikibaseImporter:
         self.identifier.get(wikibase_repo)
         self.appConfig = configparser.ConfigParser()
         self.appConfig.read('config/application.config.ini')
-        endpoint = self.appConfig.get('wikibase','sparqlEndPoint')
+        endpoint = self.appConfig.get('wikibase', 'sparqlEndPoint')
         self.id = IdSparql(endpoint, self.identifier.itemIdentifier, self.identifier.propertyIdentifier)
         self.id.load()
 
@@ -68,17 +71,72 @@ class WikibaseImporter:
         data['claims'] = claims
         return data
 
+    def get_last_label_upate(self, revisions, focus_label):
+        """
+            for a given label, return the last/most recent revision where it was updated
+            :arguments
+            :revisions - list of revisions on the wikibase item
+            :focus_label - current label to get difference for
+            :return - the revisions item where the last update was made on the focus label
+        """
+        index = 0
+        # get labels string as dictionary
+        most_recent_label_value = ast.literal_eval(revisions[index]['slots']['main']['*'])['labels'][focus_label]['value']
+        for revision in revisions:
+            if index == 0:  # focus revision
+                index += 1
+            elif index > 0:
+                # get revision asterisk string data as dictionary
+                revision_asterisk = json.loads(revision['slots']['main']['*'])
+                if revision_asterisk['labels'][focus_label]['value'] != most_recent_label_value:
+                    # the next revision after this is where a change was made
+                    return revisions[index - 1]
+
+                else:
+                    index += 1
+        return None
+
     # comparing the labels
     def diffLabels(self, wikidata_item, wikibase_item):
+        """
+            LOADING REVISION HERE IS EFFICIENT, UPDATES TURN OUT SUCCESSFUL ( but script ends with an exception)
+            pywikibot.exceptions.NoPage: Page [[my:Item:-1]] doesn't exist.
+        """
+
+        revisions = []
+        try:
+            revisions_tmp = wikibase_item.revisions(content=True)
+            # problem with the revisions_tmp object
+            for h in revisions_tmp:
+                revisions.append(h)
+        except pywikibot.exceptions.NoPage:
+            # pywikibot.exceptions.NoPage: Page [[my:Item:-1]] doesn't exist
+            # No revision
+            pass
+
+
         mylabels = {}
         for label in wikidata_item.labels:
             if label in languages:
-                # if label != "nqo":
                 if wikibase_item.getID() != str(-1) and label in wikibase_item.labels:
-                    # print(wikidata_item.labels.get(label), "----", wikibase_item.labels.get(label), "---", wikidata_item.labels.get(label) == wikibase_item.labels.get(label))
                     if not (wikidata_item.labels.get(label) == wikibase_item.labels.get(label)):
-                        # print("Change", wikidata_item.labels.get(label), "----", wikibase_item.labels.get(label))
-                        mylabels[label] = wikidata_item.labels.get(label)
+
+                        if revisions is None or revisions[0] is None:
+                            # no update has been done on label, accept remote update
+                            mylabels[label] = wikidata_item.labels.get(label)
+                        else:
+                            if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
+                                last_update_revision_on_label = self.get_last_label_upate(revisions, label)
+                                if last_update_revision_on_label is None:
+                                    # no update has been done on label, accept remote update
+                                    mylabels[label] = wikidata_item.labels.get(label)
+                                else:
+                                    # accept remote update if the last update on the label was made by wikidata updater
+                                    # leave current value if update was by a local user/admin
+                                    if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
+                                        mylabels[label] = wikidata_item.labels.get(label)
+                            else:
+                                mylabels[label] = wikidata_item.labels.get(label)
                 else:
                     mylabels[label] = wikidata_item.labels.get(label)
         return mylabels
@@ -332,7 +390,7 @@ class WikibaseImporter:
                         wikibase_propertyId = wikibase_claim.get('property')
                         wikibase_text = wikibase_claim.get('datavalue').get('value')
                         wikidata_text = wikidata_claim.get('datavalue').get('value')
-                        #print(self.id.get_id(wikidata_propertyId),'--',wikibase_propertyId,'--',wikibase_text, '--- ', wikidata_text,  wikibase_text == wikidata_text)
+                        # print(self.id.get_id(wikidata_propertyId),'--',wikibase_propertyId,'--',wikibase_text, '--- ', wikidata_text,  wikibase_text == wikidata_text)
                         if wikibase_text == wikidata_text:
                             found_equal_value = True
                 # GLOBAL-COORDINATE
@@ -548,7 +606,8 @@ class WikibaseImporter:
                         print("We are ignoring this")
 
                 if self.id.contains_id(wikidata_objectId) and (not self.id.get_id(wikidata_objectId) == '-1'):
-                    claim = pywikibot.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId), datatype='wikibase-item')
+                    claim = pywikibot.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId),
+                                            datatype='wikibase-item')
                     object = pywikibot.ItemPage(self.wikibase_repo, self.id.get_id(wikidata_objectId))
                     claim.setTarget(object)
                     claim.setRank(wikidata_claim.get('rank'))
@@ -574,7 +633,8 @@ class WikibaseImporter:
                     return claim
             # MONOLINGUALTEXT
             elif wikidata_claim.get('datatype') == 'monolingualtext':
-                claim = pywikibot.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId), datatype='monolingualtext')
+                claim = pywikibot.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId),
+                                        datatype='monolingualtext')
                 wikidata_text = wikidata_claim.get('datavalue').get('value').get('text')
                 wikidata_language = wikidata_claim.get('datavalue').get('value').get('language')
                 # HACK
@@ -600,13 +660,15 @@ class WikibaseImporter:
                 claim = pywikibot.page.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId),
                                              datatype='globe-coordinate')
                 if wikidata_precision != None:
-                    target = pywikibot.Coordinate(site=self.wikibase_repo, lat=wikidata_latitude, lon=wikidata_longitude,
+                    target = pywikibot.Coordinate(site=self.wikibase_repo, lat=wikidata_latitude,
+                                                  lon=wikidata_longitude,
                                                   alt=wikidata_altitude,
                                                   globe_item="http://www.wikidata.org/entity/Q2",
                                                   precision=wikidata_precision
                                                   )
                 else:
-                    target = pywikibot.Coordinate(site=self.wikibase_repo, lat=wikidata_latitude, lon=wikidata_longitude,
+                    target = pywikibot.Coordinate(site=self.wikibase_repo, lat=wikidata_latitude,
+                                                  lon=wikidata_longitude,
                                                   alt=wikidata_altitude,
                                                   globe_item="http://www.wikidata.org/entity/Q2",
                                                   precision=1
@@ -748,7 +810,8 @@ class WikibaseImporter:
                 return claim
             # GEOSHAPE
             elif wikidata_claim.get('datatype') == 'geo-shape':
-                claim = pywikibot.page.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId), datatype='geo-shape')
+                claim = pywikibot.page.Claim(self.wikibase_repo, self.id.get_id(wikidata_propertyId),
+                                             datatype='geo-shape')
                 commons_site = pywikibot.Site('commons', 'commons')
                 page = pywikibot.Page(commons_site, wikidata_claim.get('datavalue').get('value'))
                 target = pywikibot.WbGeoShape(page)
@@ -779,7 +842,7 @@ class WikibaseImporter:
         found = False
         found_equal_value = False
         (claim_found, main_claim_found_equal_value) = self.compare_claim(wikidata_claim.get('mainsnak'),
-                                                                    wikibase_claim.get('mainsnak'), translate)
+                                                                         wikibase_claim.get('mainsnak'), translate)
         # compare qualifiers
         qualifiers_equal = True
         if ('qualifiers' in wikidata_claim) and ('qualifiers' in wikibase_claim):
@@ -799,7 +862,7 @@ class WikibaseImporter:
                     if qualifier_equal == False:
                         qualifiers_equal = False
         if ('qualifiers' in wikidata_claim and not ('qualifiers' in wikibase_claim) or (
-        not 'qualifiers' in wikidata_claim) and 'qualifiers' in wikibase_claim):
+                not 'qualifiers' in wikidata_claim) and 'qualifiers' in wikibase_claim):
             qualifiers_equal = False
 
         # compare references
@@ -825,7 +888,8 @@ class WikibaseImporter:
                                         # print("q_wikidata",q_wikidata)
                                         # print("q_wikibase",q_wikibase)
                                         (
-                                        references_claim_found, references_claim_found_equal_value) = self.compare_claim(
+                                            references_claim_found,
+                                            references_claim_found_equal_value) = self.compare_claim(
                                             q_wikidata,
                                             q_wikibase, translate)
                                         # print("qualifier_claim_found_equal_value", references_claim_found_equal_value)
@@ -885,8 +949,8 @@ class WikibaseImporter:
                                 # print(wikidata_claim,"---",wikibase_claim)
                                 (found_here, found_equal_value_here,
                                  more_accurate_here) = self.compare_claim_with_qualifiers_and_references(wikidata_claim,
-                                                                                                    wikibase_claim,
-                                                                                                    True)
+                                                                                                         wikibase_claim,
+                                                                                                         True)
                                 # print('Result ',found_here,found_equal_value_here, more_accurate_here)
                                 if found_here == True:
                                     found = True
@@ -949,7 +1013,7 @@ class WikibaseImporter:
                             edit_where_claim_was_added = i - 1
                             break
                     # print("User that added this claim ", revisions[edit_where_claim_was_added]['user'])
-                    if revisions[edit_where_claim_was_added]['user'] != self.appConfig.get('wikibase','user'):
+                    if revisions[edit_where_claim_was_added]['user'] != self.appConfig.get('wikibase', 'user'):
                         not_remove.append(claimToRemove)
         for c in not_remove:
             claimsToRemove.remove(c)
@@ -980,7 +1044,8 @@ class WikibaseImporter:
                             if self.id.contains_id(wikidata_propertyId):
                                 (claim_found, claim_found_equal_value,
                                  more_accurate) = self.compare_claim_with_qualifiers_and_references(wikidata_claim,
-                                                                                               wikibase_claim, True)
+                                                                                                    wikibase_claim,
+                                                                                                    True)
                                 if (claim_found_equal_value == True):
                                     found_equal_value = True
                     print(found_equal_value)
@@ -1090,7 +1155,6 @@ class WikibaseImporter:
             self.changeSiteLinks(wikidata_item, wikibase_item)
             self.changeClaims(wikidata_item, wikibase_item)
 
-
     def change_property(self, wikidata_item, wikibase_repo, statements):
         print("Change Property", wikidata_item.getID())
         wikidata_item.get()
@@ -1111,8 +1175,6 @@ class WikibaseImporter:
         if statements:
             self.changeClaims(wikidata_item, wikibase_item)
         return wikibase_item
-
-
 
 
 def chunks(l, n):
