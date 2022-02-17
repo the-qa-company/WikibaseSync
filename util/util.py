@@ -9,6 +9,8 @@ import configparser
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
 
+user_config = __import__("user-config")
+
 languages = ["bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "lb", "lt", "lv", "mt",
              "nl", "pl", "pt", "ro", "sk", "sl", "sv", "tr"]
 
@@ -133,7 +135,8 @@ class WikibaseImporter:
                                 else:
                                     # accept remote update if the last update on the label was made by wikidata updater
                                     # leave current value if update was by a local user/admin
-                                    if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
+                                    # if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
+                                    if last_update_revision_on_label["user"].lower() == str(user_config.usernames['my']['my']):
                                         mylabels[label] = wikidata_item.labels.get(label)
                             else:
                                 mylabels[label] = wikidata_item.labels.get(label)
