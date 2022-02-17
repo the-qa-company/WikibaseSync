@@ -120,28 +120,30 @@ class WikibaseImporter:
         mylabels = {}
         for label in wikidata_item.labels:
             if label in languages:
-                if wikibase_item.getID() != str(-1) and label in wikibase_item.labels:
-                    if not (wikidata_item.labels.get(label) == wikibase_item.labels.get(label)):
+                # confirm that wikidata label and description do not have the same value before proceeding
+                if not (wikidata_item.labels.get(label) == wikidata_item.descriptions.get(label)):
+                    if wikibase_item.getID() != str(-1) and label in wikibase_item.labels:
+                        if not (wikidata_item.labels.get(label) == wikibase_item.labels.get(label)):
 
-                        if revisions is None or revisions[0] is None:
-                            # no update has been done on label, accept remote update
-                            mylabels[label] = wikidata_item.labels.get(label)
-                        else:
-                            if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
-                                last_update_revision_on_label = self.get_last_label_update(revisions, label)
-                                if last_update_revision_on_label is None:
-                                    # no update has been done on label, accept remote update
-                                    mylabels[label] = wikidata_item.labels.get(label)
-                                else:
-                                    # accept remote update if the last update on the label was made by wikidata updater
-                                    # leave current value if update was by a local user/admin
-                                    # if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
-                                    if last_update_revision_on_label["user"].lower() == str(user_config.usernames['my']['my']):
-                                        mylabels[label] = wikidata_item.labels.get(label)
-                            else:
+                            if revisions is None or revisions[0] is None:
+                                # no update has been done on label, accept remote update
                                 mylabels[label] = wikidata_item.labels.get(label)
-                else:
-                    mylabels[label] = wikidata_item.labels.get(label)
+                            else:
+                                if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
+                                    last_update_revision_on_label = self.get_last_label_update(revisions, label)
+                                    if last_update_revision_on_label is None:
+                                        # no update has been done on label, accept remote update
+                                        mylabels[label] = wikidata_item.labels.get(label)
+                                    else:
+                                        # accept remote update if the last update on the label was made by wikidata updater
+                                        # leave current value if update was by a local user/admin
+                                        # if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
+                                        if last_update_revision_on_label["user"].lower() == str(user_config.usernames['my']['my']):
+                                            mylabels[label] = wikidata_item.labels.get(label)
+                                else:
+                                    mylabels[label] = wikidata_item.labels.get(label)
+                    else:
+                        mylabels[label] = wikidata_item.labels.get(label)
         return mylabels
 
     def changeLabels(self, wikidata_item, wikibase_item):
@@ -167,13 +169,15 @@ class WikibaseImporter:
         myDescriptions = {}
         for description in wikidata_item.descriptions:
             if description in languages:
-                if wikibase_item.getID() != str(-1) and description in wikibase_item.descriptions:
-                    if not (wikidata_item.descriptions.get(description) == wikibase_item.descriptions.get(
-                            description)):
-                        # print("Change", wikidata_item.descriptions.get(description), "----", wikibase_item.descriptions.get(description))
+                # confirm that wikidata label and description do not have the same value before proceeding
+                if not (wikidata_item.labels.get(description) == wikidata_item.descriptions.get(description)):
+                    if wikibase_item.getID() != str(-1) and description in wikibase_item.descriptions:
+                        if not (wikidata_item.descriptions.get(description) == wikibase_item.descriptions.get(
+                                description)):
+                            # print("Change", wikidata_item.descriptions.get(description), "----", wikibase_item.descriptions.get(description))
+                            myDescriptions[description] = wikidata_item.descriptions.get(description)
+                    else:
                         myDescriptions[description] = wikidata_item.descriptions.get(description)
-                else:
-                    myDescriptions[description] = wikidata_item.descriptions.get(description)
         return myDescriptions
 
     # comparing the descriptions
