@@ -80,6 +80,6 @@ api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>")
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
