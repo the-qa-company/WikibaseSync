@@ -28,6 +28,7 @@ class Sync(Resource):
 class ImportOne(Resource):
     def get(self, q_id):
         from api_import_one import mth_import_one
+        # TODO RUN THIS IS A THREAD AND RETURN TRUE IMMEDIATELY
         response = mth_import_one(q_id)
         if response:
             payload = {"status_code": 200, "message": "Import successful"}
@@ -56,12 +57,32 @@ class WikiDataQuery(Resource):
                        "message": "Import could not be completed"}
         return payload
 
+class WikibaseQuery(Resource):
+    def get(self, query_string):
+
+        # general english
+        url = "http://localhost/w/api.php?action=wbsearchentities&search=" + \
+              query_string + "&format=json&errorformat=plaintext&language=en&uselang=en&type=property"
+
+        # british english
+        # url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" + query_string + "&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property"
+
+        response = requests.get(url)
+        response = response.json()
+        if response:
+            payload = {"status_code": 200, "response": response}
+        else:
+            payload = {"status_code": 500,
+                       "message": "Import could not be completed"}
+        return payload
+
 
 # ROUTES
 api.add_resource(Index, "/")
 api.add_resource(Sync, "/sync/<string:item_name>/<int:id>")
 api.add_resource(ImportOne, "/import-wikidata-item/<string:q_id>")
 api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>")
+api.add_resource(WikibaseQuery, "/local-wikibase-query/<string:query_string>")
 
 # @app.route("/")
 # def hello_world():

@@ -111,6 +111,7 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                                 $("#"+closestCloneButtonId).remove();
                             });*/
                             //}
+                            
                             if (focusInput) {
                                 console.log('in focus input');
                                 $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source:
@@ -143,8 +144,8 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
                                         });
                                     },
                                     select: function(event, ui){
-console.log("HERE")
-console.log($(event.target).siblings('button'));
+                                        console.log("REMOTE OPTION SELECTED")
+                                        console.log($(event.target).siblings('button'));
                                         $(event.target).siblings('button')[0].setAttribute('item-id', ui.item.id)
                                         $(event.target).siblings('button')[0].setAttribute('item-description', ui.item.label)
                                         $(event.target).siblings('button')[0].setAttribute('item-value', ui.item.value)
@@ -211,10 +212,10 @@ console.log($(event.target).siblings('button'));
 //clone button clicked
 function cloneAction(ele) {
     //clone action called
-console.log("Clone information: ")
-console.log(ele.getAttribute('item-id'));
-console.log(ele.getAttribute('item-description'));
-console.log(ele.getAttribute('item-value'));
+    console.log("Clone information: ")
+    console.log(ele.getAttribute('item-id'));
+    console.log(ele.getAttribute('item-description'));
+    console.log(ele.getAttribute('item-value'));
 
     //api call
     var wikibaseSyncUrl = _wikibasesync_base_url + 'import-wikidata-item/' + _propertyId;
