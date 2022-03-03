@@ -12,26 +12,9 @@ var propertyDetailArray = [];
 var cloneButtonIdPrefix = 'clone_btn_';
 var currentlyClickedCloneButtonId = '';
 var currentBtn = null;
+// var localDataLength = 1;
 
 var _wikibasesync_base_url = "http://127.0.0.1:5000/";
-
-// (function (mw, $) {
-
-//     try{
-//     var __inputWithSuggestion = $('#new .ui-entityselector-input').val();
-
-//     if (!__inputWithSuggestion) {
-//         $(".mez-appended-button").remove();
-//         console.log('clone button removed');
-//     }
-
-//     var __focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
-//     if (!__focusInput) {
-//         $(".mez-appended-button").remove();
-//         console.log('clone button removed');
-//     }
-//     }catch(err){}
-// }(mediaWiki, jQuery));
 
 
 (function (mw, $) {
@@ -47,156 +30,104 @@ var _wikibasesync_base_url = "http://127.0.0.1:5000/";
 
                 if (entries.length == 2) {
                     if (entries[0][1]) {
-                        if (entries[0][1].uiOoMenuItem && entries[0][1].uiOoMenuItem._label == "No match was found") {
-                            console.log('No found');
-                            var notFoundEl = document.getElementsByClassName('ui-ooMenu-item ui-ooMenu-customItem ui-entityselector-notfound')[0];
-                            //console.log(notFoundEl);
+                        $('.wikibase-snakview-property input').on('keyup', function () {
+                            //console.log("TYPED VALUE");
+                            var typedValue = $(this).val();
+                            //check if there's data found locally
+                            $.ajax({
+                                url: _wikibasesync_base_url + 'local-wikibase-query/' + typedValue,
+                                crossDomain: true,
+                                headers: {
+                                    // "accept": "application/json",
+                                    "Access-Control-Allow-Origin": "*",
+                                    "Access-Control-Request-Headers3": "x-requested-with"
+                                },
+                                success: function (data) {
+                                    //console.log("RECEIVED LOCAL DATA");
+                                    //console.log(data.response.search.length);
+                                    data_length = data.response.search.length
+
+                                    if (data_length < 1) {
+                                        console.log("No local data found");
+                                        // localDataLength = 0;
+
+                                        console.log('No found');
+                                        // var notFoundEl = document.getElementsByClassName('ui-ooMenu-item ui-ooMenu-customItem ui-entityselector-notfound')[0];
+                                        //console.log(notFoundEl);
 
 
-                            //if (entries.length == 3) {
-                            //console.log(added_node);
-                            focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
-                            //console.log(focusInput);
+                                        focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
+                                        //console.log(focusInput);
 
-                            //always remove clone button while typing
-                            //var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
-                            $('.wikibase-snakview-property input').on('keydown', function() {
-                              //console.log($(this).closest('div').find(':button').index(this));
-                              console.log('input parent div');
-                              //console.log($(this).closest('div').find(':button').get(0).id);
-                              //console.log($(this).closest('div').find('button'));
-                              //console.log($(this).siblings(".mez-appended-button"))x;
-                              //$('.ui-entityselector-input-unrecognized').siblings('.mez-appended-button').remove()
-                              //$('.ui-entityselector-input-recognized').siblings('.mez-appended-button').remove()
-                              currentBtn = $(this).siblings('.mez-appended-button')[0]
-                              if($(this).siblings('.mez-appended-button').length === 0){
-                                  $("<button class='mez-appended-button' onclick='cloneAction(this)'>Clone</button>").insertAfter($(this));
-                              }
-
-                            });
-
-                            /*$("#new .ui-entityselector-input").on("keydown", "", function (e) {
-                                var _focused = $(':focus')
-                                if (_focused.get(0).id === undefined || _focused.get(0).id.length < 5) {
-                                    $(':focus').attr('id', 'autoCompleteInput'+autoInputIDCounter);
-                                autoInputIDCounter = autoInputIDCounter + 1;
-
-                                //find the closest parent that has a button
-                                $(this).closest(':has(button)').attr('id', 'autoCompleteInputParent'+parentIDCounter);
-                                parentIDCounter = parentIDCounter + 1;
-                                }
-
-
-                                var _focused = $(':focus')
-
-                                console.log(_focused.get(0).id);
-                                console.log("key down");
-                                //$(".mez-appended-button").remove();
-
-                                //find the closest parent that has a button
-                                var closestParentWithButton = $(this).closest(':has(button)');
-                                var closestParentWithButtonID = closestParentWithButton.get(0).id;
-                                // closestCloneButton = $(this).parentsUntil(closestParentWithButton).nextAll('button').first();
-                                console.log(closestParentWithButton);
-                                //var closestCloneButton = closestParentWithButton.children('button').eq(0)
-                                var closestCloneButton = $("#"+closestParentWithButtonID).children('button').eq(0)
-                                var closestCloneButtonId = closestCloneButton.get(0).id;
-
-                                //.parentsUntil(closest) will call all parents until the closest parent that has a button
-                                // .nextAll('button') will call the buttons that comes only next each parents
-                                // .first() will filter the first one that comes next
-                                //see https://stackoverflow.com/questions/23784755/jquery-closest-button-after-input/23785154
-
-                                console.log(closestCloneButtonId);
-                                $("#"+closestCloneButtonId).remove();
-                            });*/
-                            //}
-                            
-                            if (focusInput) {
-                                console.log('in focus input');
-                                $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source:
-                                    source: function (request, response) {
-                                        console.log('Request term: ' + request.term);
-                                        $.ajax({
-                                            // url: 'https://www.wikidata.org/w/api.php?action=wbsearchentities&search=' + request.term + '&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property',
-                                            url: _wikibasesync_base_url + 'remote-wikidata-query/' + request.term,
-                                            // data: {term: request.term},
-                                            // dataType: "json",
-                                            crossDomain: true,
-                                            headers: {
-                                                // "accept": "application/json",
-                                                "Access-Control-Allow-Origin": "*",
-                                                "Access-Control-Request-Headers3": "x-requested-with"
-                                            },
-                                            success: function (data) {
-                                                console.log(data);
-
-                                                response($.map(data.response.search, function (item) {
-                                                    _propertyId = item.id;
-                                                    _propertyLabel = item.label;
-                                                    return {
-                                                        label: item.description,
-                                                        value: item.label,
-                                                        id: item.id
-                                                    }
-                                                }));
+                                        //always remove clone button while typing
+                                        //var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
+                                        $('.wikibase-snakview-property input').on('keydown', function () {
+                                            //console.log($(this).closest('div').find(':button').index(this));
+                                            console.log('input parent div');
+                                            currentBtn = $(this).siblings('.mez-appended-button')[0]
+                                            if ($(this).siblings('.mez-appended-button').length === 0) {
+                                                $("<button class='mez-appended-button' onclick='cloneAction(this)'>Clone</button>").insertAfter($(this));
                                             }
+
                                         });
-                                    },
-                                    select: function(event, ui){
-                                        console.log("REMOTE OPTION SELECTED")
-                                        console.log($(event.target).siblings('button'));
-                                        $(event.target).siblings('button')[0].setAttribute('item-id', ui.item.id)
-                                        $(event.target).siblings('button')[0].setAttribute('item-description', ui.item.label)
-                                        $(event.target).siblings('button')[0].setAttribute('item-value', ui.item.value)
+
+
+
+                                        if (focusInput) {
+                                            console.log('in focus input');
+                                            $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source:
+                                                source: function (request, response) {
+                                                    console.log('Request term: ' + request.term);
+                                                    $.ajax({
+                                                        // url: 'https://www.wikidata.org/w/api.php?action=wbsearchentities&search=' + request.term + '&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property',
+                                                        url: _wikibasesync_base_url + 'remote-wikidata-query/' + request.term,
+                                                        // data: {term: request.term},
+                                                        // dataType: "json",
+                                                        crossDomain: true,
+                                                        headers: {
+                                                            // "accept": "application/json",
+                                                            "Access-Control-Allow-Origin": "*",
+                                                            "Access-Control-Request-Headers3": "x-requested-with"
+                                                        },
+                                                        success: function (data) {
+                                                            console.log(data);
+
+                                                            response($.map(data.response.search, function (item) {
+                                                                _propertyId = item.id;
+                                                                _propertyLabel = item.label;
+                                                                return {
+                                                                    label: item.description,
+                                                                    value: item.label,
+                                                                    id: item.id
+                                                                }
+                                                            }));
+                                                        }
+                                                    });
+                                                },
+                                                select: function (event, ui) {
+                                                    console.log("REMOTE OPTION SELECTED")
+                                                    console.log($(event.target).siblings('button'));
+                                                    $(event.target).siblings('button')[0].setAttribute('item-id', ui.item.id)
+                                                    $(event.target).siblings('button')[0].setAttribute('item-description', ui.item.label)
+                                                    $(event.target).siblings('button')[0].setAttribute('item-value', ui.item.value)
+                                                }
+                                            });
+
+
+
+
+                                        }
+                                    } else {
+                                        // localDataLength = 1;
                                     }
-                                });
-
-                                //insert clone button
-                                //var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
-
-                                //if (inputWithSuggestionParent) {
-                                //    console.log('new value: ' + _propertyId);
-
-                                    //replace classname with the id of the specific applicable element
-
-                                    //$(".mez-appended-button").remove();
-                                    //inputWithSuggestionParent.append("<button class='mez-appended-button' style='display:block' onclick='cloneAction(this)'>Clone</button>");
-
-                                    // $(document).ready(function() {
-                                    //     $(".mez-appended-button").click(function(event) {
-                                    //         currentlyClickedCloneButtonId = event.target.id;
-                                    //         alert(currentlyClickedCloneButtonId);
-                                    //         if (currentlyClickedCloneButtonId) {
-                                    //             $("#"+ currentlyClickedCloneButtonId +"").remove();
-                                    //         }
-                                    //     });
-                                    // });
-
-
-
-                                    //var currentCount = cloneButtonCounter;
-                                    //var myCloneButtonId = cloneButtonIdPrefix + ''+currentCount +'';
-
-                                    //increase button counter
-                                    //cloneButtonCounter = cloneButtonCounter+1;
-
-                                    //inputWithSuggestionParent.append("<button id="+ myCloneButtonId + " class='mez-appended-button' onclick='cloneAction(this)'>Clone</button>");
-
-                                    //pushNewButtonInfo(myCloneButtonId, currentCount);
-                                //}
-                            }
-                            if (!focusInput) {
-                                //remove clone button
-                                var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
-
-                                if (inputWithSuggestionParent) {
-                                    //replace classname with the id of the specific applicable element
-                                    $(".mez-appended-button").remove();
                                 }
-                            }
+                            });
+                        });
+                        // if (localDataLength == 0) {
 
-                        }
+
+
+                        // }
                     }
                 }
 
@@ -217,11 +148,11 @@ function cloneAction(ele) {
     console.log(ele.getAttribute('item-description'));
     console.log(ele.getAttribute('item-value'));
 
+    var _myPropertyId = ele.getAttribute('item-id')
+
     //api call
-    var wikibaseSyncUrl = _wikibasesync_base_url + 'import-wikidata-item/' + _propertyId;
+    var wikibaseSyncUrl = _wikibasesync_base_url + 'import-wikidata-item/' + _myPropertyId;
     $.ajax({
-        // data: {term: request.term},
-        // dataType: "json",
         url: wikibaseSyncUrl,
         crossDomain: true,
         headers: {
@@ -232,26 +163,14 @@ function cloneAction(ele) {
         success: function (data) {
             console.log(data);
             //remove clone button
-            var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
+            ele.remove();
+            console.log('clone button removed');
 
-            if (inputWithSuggestionParent) {
-                $(".mez-appended-button").remove();
-                console.log('clone button removed');
-            }
-            // response($.map(data.response.search, function (item) {
-            //     _propertyId = item.id;
-            //     _propertyLabel = item.label;
-            //     return {
-            //         label: item.description,
-            //         value: item.label,
-            //         id: item.id
-            //     }
-            // }));
         }
     });
 }
 
-function pushNewButtonInfo(buttonId, arrayKey){
+function pushNewButtonInfo(buttonId, arrayKey) {
     //add button info to array
     propertyDetailArray[arrayKey] = buttonId;
 

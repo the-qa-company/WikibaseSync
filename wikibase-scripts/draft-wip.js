@@ -148,8 +148,10 @@ function cloneAction(ele) {
     console.log(ele.getAttribute('item-description'));
     console.log(ele.getAttribute('item-value'));
 
+    var _myPropertyId = ele.getAttribute('item-id')
+
     //api call
-    var wikibaseSyncUrl = _wikibasesync_base_url + 'import-wikidata-item/' + _propertyId;
+    var wikibaseSyncUrl = _wikibasesync_base_url + 'import-wikidata-item/' + _myPropertyId;
     $.ajax({
         url: wikibaseSyncUrl,
         crossDomain: true,

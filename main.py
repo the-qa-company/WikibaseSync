@@ -1,7 +1,9 @@
+import socket
+import requests
 from flask import Flask
 from flask_restful import Api, Resource
 from flask_cors import CORS, cross_origin
-import requests
+from threading import Thread
 
 app = Flask(__name__)
 CORS(app)
@@ -26,10 +28,18 @@ class Sync(Resource):
 
 # import one
 class ImportOne(Resource):
+
+    def import_thread_spinner(self, query_id):
+        def handle():
+            from api_import_one import mth_import_one
+            response = mth_import_one(query_id)
+        t = Thread(target=handle)
+        return t
     def get(self, q_id):
-        from api_import_one import mth_import_one
-        # TODO RUN THIS IS A THREAD AND RETURN TRUE IMMEDIATELY
-        response = mth_import_one(q_id)
+        #from api_import_one import mth_import_one
+        self.import_thread_spinner(q_id).start()
+        #response = mth_import_one(q_id)
+        response = 2
         if response:
             payload = {"status_code": 200, "message": "Import successful"}
         else:
