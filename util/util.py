@@ -30,7 +30,6 @@ class WikibaseImporter:
     # transforms the json to an item
     def jsonToItem(self, wikibase_repo, json_object):
         y = json.loads(json_object)
-        print(y)
         data = {}
         # labels
         labels = {}
@@ -928,6 +927,50 @@ class WikibaseImporter:
             more_accurate = True
         return claim_found, found_equal_value, more_accurate
 
+    def re_add(self, wikibase_repo, revisions, wikidata_claim):
+        """
+            skip re_adding claims removed by local wikibase users
+        """
+        edit_where_claim_was_last_found = 0
+        found = False
+        for i in range(0, len(revisions) - 1):
+            item_revision = self.jsonToItem(wikibase_repo, revisions[i]['text'])
+            if found is False:
+                for claims_revision in item_revision['claims']:
+                    if found is False:
+                        for c_revision in item_revision['claims'].get(claims_revision):
+                            if found is False:
+                                (claim_found, found_equal_value) = self.compare_claim(
+                                    wikidata_claim.get('mainsnak'),
+                                    c_revision.toJSON().get('mainsnak'), False)
+                                # (found_here, found_equal_value,
+                                #  more_accurate) = self.compare_claim_with_qualifiers_and_references(
+                                #     wikidata_claim, c_revision.toJSON(), False)
+
+                                if found_equal_value or claim_found:
+                                    found = True
+                            if found:
+                                break
+                    if found:
+                        break
+            if found is False:
+                edit_where_claim_was_last_found = i + 1
+                # break
+            if found:
+                break
+        if found is False:
+            return True
+        edit_where_claim_was_deleted = edit_where_claim_was_last_found - 1
+        if edit_where_claim_was_last_found < 1:
+            return True
+        #print("Revisions user:")
+        #print(revisions[edit_where_claim_was_deleted]["user"].lower())
+        #print("Bot Admin user:")
+        #print(str(user_config.usernames['my']['my']))
+        if revisions[edit_where_claim_was_deleted]["user"].lower() != str(user_config.usernames['my']['my']):
+            return False
+        return True
+
     # change the claims
     def changeClaims(self, wikidata_item, wikibase_item):
         # check which claims are in wikibase and in wikidata with the same property but different value, and delete them
@@ -1098,6 +1141,14 @@ class WikibaseImporter:
                             print('This should not happen ', wikidata_claim.get('mainsnak'))
         print("claimsToAdd ", newClaims)
         if len(newClaims) > 0:
+            # check if this data was modified or removed by local user
+            temp_new_claims = []
+            for cl in newClaims:
+                re_add = self.re_add(self.wikibase_repo, revisions, cl)
+                if re_add:
+                    temp_new_claims.append(cl)
+            newClaims = temp_new_claims
+
             for claimsToAdd in chunks(newClaims, 20):
                 data = {}
                 data['claims'] = claimsToAdd
