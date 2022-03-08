@@ -927,9 +927,11 @@ class WikibaseImporter:
             more_accurate = True
         return claim_found, found_equal_value, more_accurate
 
-    def re_add(self, wikibase_repo, revisions, wikidata_claim):
+    def check_claim_was_not_deleted_locally(self, wikibase_repo, revisions, wikidata_claim):
         """
-            skip re_adding claims removed by local wikibase users
+           This method checks whether a given claim has previously existed in the wikibase
+           and was deleted by a local user.
+           Returns true if the above condition is true, false otherwise
         """
         edit_where_claim_was_last_found = 0
         found = False
@@ -967,7 +969,7 @@ class WikibaseImporter:
         #print(revisions[edit_where_claim_was_deleted]["user"].lower())
         #print("Bot Admin user:")
         #print(str(user_config.usernames['my']['my']))
-        if revisions[edit_where_claim_was_deleted]["user"].lower() != str(user_config.usernames['my']['my']):
+        if revisions[edit_where_claim_was_deleted]["user"].lower() != str(user_config.usernames['my']['my']).lower():
             return False
         return True
 
@@ -1032,7 +1034,7 @@ class WikibaseImporter:
         # if only the wikidata updater made changes then it is for sure a deletion in wikidata
         for revision in revisions:
             # print(revision['user'])
-            if revision['user'] != "WikidataUpdater":
+            if revision['user'].lower() != str(user_config.usernames['my']['my']).lower():
                 is_only_wikidata_updater_user = False
                 break
         # print("is_only_wikidata_updater_user",is_only_wikidata_updater_user)
@@ -1141,13 +1143,14 @@ class WikibaseImporter:
                             print('This should not happen ', wikidata_claim.get('mainsnak'))
         print("claimsToAdd ", newClaims)
         if len(newClaims) > 0:
-            # check if this data was modified or removed by local user
-            temp_new_claims = []
-            for cl in newClaims:
-                re_add = self.re_add(self.wikibase_repo, revisions, cl)
-                if re_add:
-                    temp_new_claims.append(cl)
-            newClaims = temp_new_claims
+            if not is_only_wikidata_updater_user:
+                # check if this data was modified or removed by local user
+                temp_new_claims = []
+                for cl in newClaims:
+                    re_add = self.check_claim_was_not_deleted_locally(self.wikibase_repo, revisions, cl)
+                    if re_add:
+                        temp_new_claims.append(cl)
+                newClaims = temp_new_claims
 
             for claimsToAdd in chunks(newClaims, 20):
                 data = {}
