@@ -16,8 +16,25 @@ var currentBtn = null;
 
 var _wikibasesync_base_url = "http://127.0.0.1:5000/";
 
+function insertStyle(){
+    var css = 'button.mez-appended-button:nth-child(2) {margin-top: 19px;}';
+    //var css = '.wikibase-referenceview .wikibase-snaklistview-listview .wikibase-snakview-property input {position: relative !important;}';
+    head = document.head || document.getElementsByTagName('head')[0];
+    style = document.createElement('style');
+
+    head.appendChild(style);
+
+    style.type = 'text/css';
+    if (style.styleSheet){
+      // This is required for IE8 and below.
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+}
 
 (function (mw, $) {
+    insertStyle()
     var _parentEl = document.getElementsByClassName('wikibase-entityview wb-item')
     console.log(_parentEl)
 
