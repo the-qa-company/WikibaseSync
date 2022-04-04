@@ -115,7 +115,6 @@ class WikibaseImporter:
             # No revision
             pass
 
-
         mylabels = {}
         for label in wikidata_item.labels:
             if label in languages:
@@ -137,7 +136,8 @@ class WikibaseImporter:
                                         # accept remote update if the last update on the label was made by wikidata updater
                                         # leave current value if update was by a local user/admin
                                         # if last_update_revision_on_label["user"].lower() == self.appConfig.get('wikibase', 'user').lower():
-                                        if last_update_revision_on_label["user"].lower() == str(user_config.usernames['my']['my']):
+                                        if last_update_revision_on_label["user"].lower() == str(
+                                                user_config.usernames['my']['my']):
                                             mylabels[label] = wikidata_item.labels.get(label)
                                 else:
                                     mylabels[label] = wikidata_item.labels.get(label)
@@ -935,22 +935,25 @@ class WikibaseImporter:
         """
         edit_where_claim_was_last_found = 0
         found = False
-        for i in range(0, len(revisions) - 1):
+        for i in range(0, len(revisions)):
             item_revision = self.jsonToItem(wikibase_repo, revisions[i]['text'])
+            #item_revision = self.jsonToItem(wikibase_repo, revisions[0]['text'])
             if found is False:
                 for claims_revision in item_revision['claims']:
                     if found is False:
                         for c_revision in item_revision['claims'].get(claims_revision):
                             if found is False:
-                                (claim_found, found_equal_value) = self.compare_claim(
-                                    wikidata_claim.get('mainsnak'),
-                                    c_revision.toJSON().get('mainsnak'), False)
-                                # (found_here, found_equal_value,
-                                #  more_accurate) = self.compare_claim_with_qualifiers_and_references(
-                                #     wikidata_claim, c_revision.toJSON(), False)
+                                found_equal_value = False
+                                claim_found = False
+
+                                if found_equal_value is False and claim_found is False:
+                                    (claim_found, found_equal_value,
+                                     more_accurate) = self.compare_claim_with_qualifiers_and_references(
+                                        wikidata_claim, c_revision.toJSON(), False)
 
                                 if found_equal_value or claim_found:
                                     found = True
+                                    break
                             if found:
                                 break
                     if found:
@@ -960,18 +963,30 @@ class WikibaseImporter:
                 # break
             if found:
                 break
+
         if found is False:
             return True
-        edit_where_claim_was_deleted = edit_where_claim_was_last_found - 1
-        if edit_where_claim_was_last_found < 1:
+
+        if i == 0:  # likely a case of deleted or updated reference as opposed to completely deleted claim
+            edit_where_claim_was_deleted = 0
+            if revisions[edit_where_claim_was_deleted]["user"].lower() != str(
+                    user_config.usernames['my']['my']).lower():
+                print("deleted by local user")
+                return False
             return True
-        #print("Revisions user:")
-        #print(revisions[edit_where_claim_was_deleted]["user"].lower())
-        #print("Bot Admin user:")
-        #print(str(user_config.usernames['my']['my']))
-        if revisions[edit_where_claim_was_deleted]["user"].lower() != str(user_config.usernames['my']['my']).lower():
-            return False
-        return True
+        else:
+            edit_where_claim_was_deleted = edit_where_claim_was_last_found - 1
+            if edit_where_claim_was_last_found < 1:
+                print("no prev revision")
+                return True
+            # print("Revisions user:")
+            # print(revisions[edit_where_claim_was_deleted]["user"].lower())
+            # print("Bot Admin user:")
+            # print(str(user_config.usernames['my']['my']))
+            if revisions[edit_where_claim_was_deleted]["user"].lower() != str(user_config.usernames['my']['my']).lower():
+                print("deleted by local user")
+                return False
+            return True
 
     # change the claims
     def changeClaims(self, wikidata_item, wikibase_item):
@@ -1141,13 +1156,16 @@ class WikibaseImporter:
                             print("Claims with no value not implemented yet")
                         else:
                             print('This should not happen ', wikidata_claim.get('mainsnak'))
-        print("claimsToAdd ", newClaims)
+        print("claimsToAdd:", newClaims)
+        print("len ", len(newClaims))
         if len(newClaims) > 0:
             if not is_only_wikidata_updater_user:
                 # check if this data was modified or removed by local user
                 temp_new_claims = []
                 for cl in newClaims:
+                    print("single cl::::", cl)
                     re_add = self.check_claim_was_not_deleted_locally(self.wikibase_repo, revisions, cl)
+                    print("re add", re_add)
                     if re_add:
                         temp_new_claims.append(cl)
                 newClaims = temp_new_claims
