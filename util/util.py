@@ -934,9 +934,6 @@ class WikibaseImporter:
            and was deleted by a local user.
            Returns true if the above condition is true, false otherwise
         """
-        edit_where_claim_was_last_found = 0
-        found = False
-        found_equal = False
         found_data = []
 
         printer = pprint.PrettyPrinter()
@@ -973,8 +970,6 @@ class WikibaseImporter:
                             found_equal = True
                             print("FOUND EQ::::", found_equal)
 
-            if found:
-                break
         print(len(revisions))
         print("FOUND DATA::::::")
         print(len(found_data))
