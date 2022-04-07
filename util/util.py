@@ -987,7 +987,7 @@ class WikibaseImporter:
         #     print("")
         #     print(data["found_in_revision"])
         # sys.exit()
-        if len(found_data) is 0:
+        if len(found_data) == 0:
             return True
 
         """likely a case of new subclaim, deleted or updated subclaim, 
