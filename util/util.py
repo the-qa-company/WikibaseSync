@@ -5,6 +5,7 @@ import json
 import pywikibot
 from pywikibot.page import Claim
 import configparser
+import pprint
 
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
@@ -935,58 +936,98 @@ class WikibaseImporter:
         """
         edit_where_claim_was_last_found = 0
         found = False
+        found_equal = False
+        found_data = []
+
+        printer = pprint.PrettyPrinter()
         for i in range(0, len(revisions)):
             item_revision = self.jsonToItem(wikibase_repo, revisions[i]['text'])
-            #item_revision = self.jsonToItem(wikibase_repo, revisions[0]['text'])
-            if found is False:
-                for claims_revision in item_revision['claims']:
-                    if found is False:
-                        for c_revision in item_revision['claims'].get(claims_revision):
-                            if found is False:
-                                found_equal_value = False
-                                claim_found = False
+            claims = item_revision["claims"]
+            for claim_key, claim in claims.items():
+                # print()
+                # print(claim_key)
+                # print('count:', len(claim))
+                # printer.pprint(claim)
+                for c_revision in claim:
+                    # printer.pprint(c_revision.toJSON())
 
-                                if found_equal_value is False and claim_found is False:
-                                    (claim_found, found_equal_value,
-                                     more_accurate) = self.compare_claim_with_qualifiers_and_references(
-                                        wikidata_claim, c_revision.toJSON(), False)
+                    found_equal_value = False
+                    claim_found = False
 
-                                if found_equal_value or claim_found:
-                                    found = True
-                                    break
-                            if found:
-                                break
-                    if found:
-                        break
-            if found is False:
-                edit_where_claim_was_last_found = i + 1
-                # break
+                    if found_equal_value is False and claim_found is False:
+                        # (claim_found, found_equal_value,
+                        #  more_accurate) = self.compare_claim_with_qualifiers_and_references(
+                        #     wikidata_claim, c_revision.toJSON(), False)
+
+                        (claim_found, found_equal_value) = self.compare_claim(
+                            wikidata_claim.get('mainsnak'),
+                            c_revision.toJSON().get('mainsnak'), False)
+
+                    if found_equal_value or claim_found:
+                        # found = True
+                        found_data.append(
+                            {"wikidata": wikidata_claim, "wikibase": c_revision.toJSON(), "found_in_revision": i,
+                             "updated_in_revision": i - 1})
+
+                        if found_equal_value:
+                            found_equal = True
+                            print("FOUND EQ::::", found_equal)
+
             if found:
                 break
-
-        if found is False:
+        print(len(revisions))
+        print("FOUND DATA::::::")
+        print(len(found_data))
+        cnt = 0
+        # for data in found_data:
+        #     print("START INDEX::::::", cnt)
+        #     print("revision")
+        #     print(data["found_in_revision"])
+        #     print("wikidata")
+        #     print(data["wikidata"])
+        #     print("wikibase")
+        #     print(data["wikibase"])
+        #     print("END INDEX::::::", cnt)
+        #     cnt = cnt + 1
+        #     print("")
+        #     print(data["found_in_revision"])
+        # sys.exit()
+        if len(found_data) is 0:
             return True
 
-        if i == 0:  # likely a case of deleted or updated reference as opposed to completely deleted claim
-            edit_where_claim_was_deleted = 0
-            if revisions[edit_where_claim_was_deleted]["user"].lower() != str(
-                    user_config.usernames['my']['my']).lower():
-                print("deleted by local user")
+        """likely a case of new subclaim, deleted or updated subclaim, 
+                    reference or qualifier as opposed to completely deleted claim. A modified claim or subclaim will 
+                    still appear in the most recent revision"""
+        if found_data[0]["found_in_revision"] == 0:
+            exact_value_existed_before = False
+            for data in found_data:
+                if exact_value_existed_before is False:
+                    wikidata_numeric_id = int(data["wikidata"]['mainsnak']['datavalue']['value']['numeric-id'])
+                    revisions_numeric_id = int(data["wikibase"]['mainsnak']['datavalue']['value']['numeric-id'])
+                    if wikidata_numeric_id == revisions_numeric_id:
+                        exact_value_existed_before = True  # data was deleted
+                        break
+                    cnt = cnt + 1
+
+            if exact_value_existed_before:
                 return False
-            return True
+            else:
+                return True # new data from wikidata, re add
         else:
-            edit_where_claim_was_deleted = edit_where_claim_was_last_found - 1
-            if edit_where_claim_was_last_found < 1:
-                print("no prev revision")
-                return True
-            # print("Revisions user:")
-            # print(revisions[edit_where_claim_was_deleted]["user"].lower())
-            # print("Bot Admin user:")
-            # print(str(user_config.usernames['my']['my']))
-            if revisions[edit_where_claim_was_deleted]["user"].lower() != str(user_config.usernames['my']['my']).lower():
-                print("deleted by local user")
+            last_found_index = found_data[0]["found_in_revision"]
+            removed_in_index = found_data[0]["updated_in_revision"]
+            print(last_found_index)
+            print(removed_in_index)
+            locally_updated = False
+
+            if revisions[found_data[0]["updated_in_revision"]]["user"].lower() != str(
+                    user_config.usernames['my']['my']).lower():
+                print("updated by local user")
+                locally_updated = True
+            if locally_updated:
                 return False
-            return True
+            else:
+                return True
 
     # change the claims
     def changeClaims(self, wikidata_item, wikibase_item):
@@ -1156,8 +1197,11 @@ class WikibaseImporter:
                             print("Claims with no value not implemented yet")
                         else:
                             print('This should not happen ', wikidata_claim.get('mainsnak'))
-        print("claimsToAdd:", newClaims)
+        printer = pprint.PrettyPrinter()
+        print("claimsToAdd")
+        printer.pprint("newClaims")
         print("len ", len(newClaims))
+        #ys.exit()
         if len(newClaims) > 0:
             if not is_only_wikidata_updater_user:
                 # check if this data was modified or removed by local user
@@ -1169,7 +1213,8 @@ class WikibaseImporter:
                     if re_add:
                         temp_new_claims.append(cl)
                 newClaims = temp_new_claims
-
+            print(newClaims)
+            #sys.exit()
             for claimsToAdd in chunks(newClaims, 20):
                 data = {}
                 data['claims'] = claimsToAdd
