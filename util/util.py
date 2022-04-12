@@ -4,7 +4,6 @@ import json
 import pywikibot
 from pywikibot.page import Claim
 import configparser
-import pprint
 
 from util.IdSparql import IdSparql
 from util.PropertyWikidataIdentifier import PropertyWikidataIdentifier
@@ -844,7 +843,6 @@ class WikibaseImporter:
 
     # comparing two claims together with their qualifiers and references
     def compare_claim_with_qualifiers_and_references(self, wikidata_claim, wikibase_claim, translate):
-        printer = pprint.PrettyPrinter()
         # compare mainsnak
         found = False
         found_equal_value = False
@@ -967,7 +965,6 @@ class WikibaseImporter:
 
     # change the claims
     def change_claims(self, wikidata_item, wikibase_item):
-        printer = pprint.PrettyPrinter()
         # check which claims are in wikibase and in wikidata with the same property but different value, and delete them
         claims_to_remove = []
         claim_more_accurate = []
@@ -1004,8 +1001,6 @@ class WikibaseImporter:
                 if found == True and found_equal_value == False:
                     claims_to_remove.append(wikibase_c)
                     claim_more_accurate.append(found_more_accurate)
-                    print("This claim is deleted::")
-                    printer.pprint(wikibase_claim)
                 if alreadyFound == True:
                     claims_to_remove.append(wikibase_c)
                     claim_more_accurate.append(found_more_accurate)
@@ -1061,8 +1056,6 @@ class WikibaseImporter:
                     # print("User that added this claim ", revisions[edit_where_claim_was_added]['user'])
                     if revisions[edit_where_claim_was_added]['user'].lower() != self.appConfig.get('wikibase', 'user').lower():
                         not_remove.append(claimToRemove)
-
-        printer.pprint(claims_to_remove)
         for c in not_remove:
             claims_to_remove.remove(c)
         print("claimsToRemove ", claims_to_remove)
