@@ -844,13 +844,12 @@ class WikibaseImporter:
     # comparing two claims together with their qualifiers and references
     def compare_claim_with_qualifiers_and_references(self, wikidata_claim, wikibase_claim, translate):
         # compare mainsnak
-        found = False
         found_equal_value = False
         (claim_found, main_claim_found_equal_value) = self.compare_claim(wikidata_claim.get('mainsnak'),
                                                                          wikibase_claim.get('mainsnak'), translate)
         # compare qualifiers
         qualifiers_equal = True
-        if ('qualifiers' in wikidata_claim) and ('qualifiers' in wikibase_claim):
+        if main_claim_found_equal_value and ('qualifiers' in wikidata_claim) and ('qualifiers' in wikibase_claim):
             for q1 in wikidata_claim.get('qualifiers'):
                 for q_wikidata in wikidata_claim.get('qualifiers').get(q1):
                     qualifier_equal = False
@@ -866,7 +865,7 @@ class WikibaseImporter:
                                     qualifier_equal = True
                     if qualifier_equal == False:
                         qualifiers_equal = False
-        if ('qualifiers' in wikidata_claim and not ('qualifiers' in wikibase_claim) or (
+        if main_claim_found_equal_value and ('qualifiers' in wikidata_claim and not ('qualifiers' in wikibase_claim) or (
                 not 'qualifiers' in wikidata_claim) and 'qualifiers' in wikibase_claim):
             qualifiers_equal = False
 
