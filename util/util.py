@@ -1,5 +1,4 @@
 import re
-import sys
 from decimal import Decimal
 import json
 import pywikibot
@@ -29,7 +28,7 @@ class WikibaseImporter:
         self.id.load()
 
     # transforms the json to an item
-    def jsonToItem(self, wikibase_repo, json_object):
+    def json_to_item(self, wikibase_repo, json_object):
         y = json.loads(json_object)
         data = {}
         # labels
@@ -146,7 +145,7 @@ class WikibaseImporter:
                         mylabels[label] = wikidata_item.labels.get(label)
         return mylabels
 
-    def changeLabels(self, wikidata_item, wikibase_item):
+    def change_labels(self, wikidata_item, wikibase_item):
         mylabels = self.diffLabels(wikidata_item, wikibase_item)
         if len(mylabels) != 0:
             print("Import labels")
@@ -165,7 +164,7 @@ class WikibaseImporter:
                     print("This should not happen 3")
 
     # comparing the descriptions
-    def diffDescriptions(self, wikidata_item, wikibase_item):
+    def diff_descriptions(self, wikidata_item, wikibase_item):
         myDescriptions = {}
         for description in wikidata_item.descriptions:
             if description in languages:
@@ -182,7 +181,7 @@ class WikibaseImporter:
 
     # comparing the descriptions
     def change_descriptions(self, wikidata_item, wikibase_item):
-        myDescriptions = self.diffDescriptions(wikidata_item, wikibase_item)
+        myDescriptions = self.diff_descriptions(wikidata_item, wikibase_item)
         # print(myDescriptions)
         if len(myDescriptions) != 0:
             print("Import Descriptions")
@@ -200,7 +199,7 @@ class WikibaseImporter:
                 print("Error probably property or item already existing ", e)
 
     # diff the aliases
-    def diffAliases(self, wikidata_item, wikibase_item):
+    def diff_aliases(self, wikidata_item, wikibase_item):
         mylabels = {}
         for alias in wikidata_item.aliases:
             if alias in languages:
@@ -213,8 +212,8 @@ class WikibaseImporter:
         return mylabels
 
     # comparing the aliases
-    def changeAliases(self, wikidata_item, wikibase_item):
-        myaliases = self.diffAliases(wikidata_item, wikibase_item)
+    def change_aliases(self, wikidata_item, wikibase_item):
+        myaliases = self.diff_aliases(wikidata_item, wikibase_item)
         if len(myaliases) != 0:
             print("Import aliases")
             try:
@@ -263,8 +262,8 @@ class WikibaseImporter:
         print("Import Entity", wikidata_item.getID() + " from Wikidata")
         wikibase_item = pywikibot.ItemPage(self.wikibase_repo)
         mylabels = self.diffLabels(wikidata_item, wikibase_item)
-        myDescriptions = self.diffDescriptions(wikidata_item, wikibase_item)
-        myaliases = self.diffAliases(wikidata_item, wikibase_item)
+        myDescriptions = self.diff_descriptions(wikidata_item, wikibase_item)
+        myaliases = self.diff_aliases(wikidata_item, wikibase_item)
         # mySitelinks = diffSiteLinks(wikidata_item, wikibase_item)
         mySitelinks = [];
         claim = pywikibot.page.Claim(self.wikibase_repo, self.identifier.itemIdentifier, datatype='external-id')
@@ -296,8 +295,8 @@ class WikibaseImporter:
         print("Import Property", wikidata_item.getID() + " from Wikidata")
         wikibase_item = pywikibot.PropertyPage(self.wikibase_repo, datatype=wikidata_item.type)
         mylabels = self.diffLabels(wikidata_item, wikibase_item)
-        myDescriptions = self.diffDescriptions(wikidata_item, wikibase_item)
-        myaliases = self.diffAliases(wikidata_item, wikibase_item)
+        myDescriptions = self.diff_descriptions(wikidata_item, wikibase_item)
+        myaliases = self.diff_aliases(wikidata_item, wikibase_item)
         claim = pywikibot.page.Claim(self.wikibase_repo, self.identifier.propertyIdentifier, datatype='external-id')
         target = wikidata_item.getID()
         claim.setTarget(target)
@@ -942,7 +941,7 @@ class WikibaseImporter:
         i = 0
         for i in range(0, len(revisions)):
             if found == False:
-                item_revision = self.jsonToItem(wikibase_repo, revisions[i]['text'])
+                item_revision = self.json_to_item(wikibase_repo, revisions[i]['text'])
                 claims = item_revision["claims"]
 
                 for claim_key, claim in claims.items():
@@ -1041,7 +1040,7 @@ class WikibaseImporter:
                     print(len(revisions))
                     for j in range(0, len(revisions)):
                         # print("new revision ",revisions[j]['user'])
-                        item_revision = self.jsonToItem(self.wikibase_repo, revisions[j]['text'])
+                        item_revision = self.json_to_item(self.wikibase_repo, revisions[j]['text'])
                         found = False
                         for claims_revision in item_revision['claims']:
                             if found == False:
@@ -1181,8 +1180,8 @@ class WikibaseImporter:
             print("This entity corresponds to ", self.id.get_id(wikidata_item.getID()))
             wikibase_item = pywikibot.ItemPage(wikibase_repo, self.id.get_id(wikidata_item.getID()))
             wikibase_item.get()
-            self.changeLabels(wikidata_item, wikibase_item)
-            self.changeAliases(wikidata_item, wikibase_item)
+            self.change_labels(wikidata_item, wikibase_item)
+            self.change_aliases(wikidata_item, wikibase_item)
             self.change_descriptions(wikidata_item, wikibase_item)
             self.wikidata_link(wikibase_item, wikidata_item)
         if statements:
@@ -1194,8 +1193,8 @@ class WikibaseImporter:
         print("This entity corresponds to ", id)
         wikibase_item = pywikibot.ItemPage(wikibase_repo, id)
         wikibase_item.get()
-        self.changeLabels(wikidata_item, wikibase_item)
-        self.changeAliases(wikidata_item, wikibase_item)
+        self.change_labels(wikidata_item, wikibase_item)
+        self.change_aliases(wikidata_item, wikibase_item)
         self.change_descriptions(wikidata_item, wikibase_item)
         self.wikidata_link(wikibase_item, wikidata_item)
         if statements:
@@ -1216,8 +1215,8 @@ class WikibaseImporter:
                                                    datatype=wikidata_item.type)
             wikibase_item.get()
             new_id = wikibase_item.getID()
-            self.changeLabels(wikidata_item, wikibase_item)
-            self.changeAliases(wikidata_item, wikibase_item)
+            self.change_labels(wikidata_item, wikibase_item)
+            self.change_aliases(wikidata_item, wikibase_item)
             self.change_descriptions(wikidata_item, wikibase_item)
         if statements:
             self.change_claims(wikidata_item, wikibase_item)
