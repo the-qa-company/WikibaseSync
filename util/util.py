@@ -938,7 +938,7 @@ class WikibaseImporter:
         """
         found = False
         # check in the revisions if the claim existed before in some point in time
-        i = 0
+        k = 0
         for i in range(0, len(revisions)):
             if found == False:
                 item_revision = self.json_to_item(wikibase_repo, revisions[i]['text'])
@@ -953,11 +953,12 @@ class WikibaseImporter:
 
                         if found_equal_value:
                             found = True
+                            k = i
         if found:
-            if i == 0:
+            if k == 0:
                 return True
             else:
-                if revisions[i - 1]["user"].lower() != str(user_config.usernames['my']['my']).lower():
+                if revisions[k - 1]["user"].lower() != str(user_config.usernames['my']['my']).lower():
                     return False
                 else:
                     return True
