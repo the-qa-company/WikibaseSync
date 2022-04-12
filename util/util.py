@@ -223,7 +223,7 @@ class WikibaseImporter:
                 print("This should not happen ", e)
 
     # comparing the sitelinks
-    def diffSiteLinks(self, wikidata_item, wikibase_item):
+    def diff_site_links(self, wikidata_item, wikibase_item):
         siteLinks = []
         id = wikibase_item.getID()
         for sitelink in wikidata_item.sitelinks:
@@ -246,8 +246,8 @@ class WikibaseImporter:
         return siteLinks
 
     # comparing the sitelinks
-    def changeSiteLinks(self, wikidata_item, wikibase_item):
-        siteLinks = self.diffSiteLinks(wikidata_item, wikibase_item)
+    def change_site_links(self, wikidata_item, wikibase_item):
+        siteLinks = self.diff_site_links(wikidata_item, wikibase_item)
         if len(siteLinks) != 0:
             print("Import sitelinks")
             try:
@@ -259,7 +259,7 @@ class WikibaseImporter:
                 print("Could not set sitelinks of ", wikibase_item.getID())
                 print(e)
 
-    def importItem(self, wikidata_item):
+    def import_item(self, wikidata_item):
         print("Import Entity", wikidata_item.getID() + " from Wikidata")
         wikibase_item = pywikibot.ItemPage(self.wikibase_repo)
         mylabels = self.diffLabels(wikidata_item, wikibase_item)
@@ -608,7 +608,7 @@ class WikibaseImporter:
                     item = pywikibot.ItemPage(self.wikidata_repo, wikidata_objectId)
                     try:
                         item.get()
-                        self.importItem(item)
+                        self.import_item(item)
                     except pywikibot.exceptions.IsRedirectPage:
                         print("We are ignoring this")
 
@@ -937,11 +937,11 @@ class WikibaseImporter:
            and was deleted by a local user.
            Returns true if the above condition is true, false otherwise
         """
-        #printer = pprint.PrettyPrinter()
         found = False
         # check in the revisions if the claim existed before in some point in time
+        i = 0
         for i in range(0, len(revisions)):
-            try:
+            if found == False:
                 item_revision = self.jsonToItem(wikibase_repo, revisions[i]['text'])
                 claims = item_revision["claims"]
 
@@ -953,22 +953,12 @@ class WikibaseImporter:
                             c_revision.toJSON().get('mainsnak'), False)
 
                         if found_equal_value:
-                            # printer.pprint("wikidata_claim:::")
-                            # printer.pprint(wikidata_claim)
-                            # printer.pprint("wikibase claim:::")
-                            # printer.pprint(c_revision.toJSON())
-                            # print(i)
                             found = True
-                            raise BreakOutOfMultipleLoops
-            except BreakOutOfMultipleLoops:
-                break
         if found:
-            if i == 0:  # likely to occur in claims with references
+            if i == 0:
                 return True
             else:
-                print("found in:", i)
-                update_index = i - 1
-                if revisions[update_index]["user"].lower() != str(user_config.usernames['my']['my']).lower():
+                if revisions[i - 1]["user"].lower() != str(user_config.usernames['my']['my']).lower():
                     return False
                 else:
                     return True
@@ -976,10 +966,10 @@ class WikibaseImporter:
             return True
 
     # change the claims
-    def changeClaims(self, wikidata_item, wikibase_item):
+    def change_claims(self, wikidata_item, wikibase_item):
         printer = pprint.PrettyPrinter()
         # check which claims are in wikibase and in wikidata with the same property but different value, and delete them
-        claimsToRemove = []
+        claims_to_remove = []
         claim_more_accurate = []
         for wikibase_claims in wikibase_item.claims:
             for wikibase_c in wikibase_item.claims.get(wikibase_claims):
@@ -993,14 +983,10 @@ class WikibaseImporter:
                 for claims in wikidata_item.claims:
                     for c in wikidata_item.claims.get(claims):
                         wikidata_claim = c.toJSON()
-                        wikidata_propertyId = wikidata_claim.get('mainsnak').get('property')
+                        wikidata_property_id = wikidata_claim.get('mainsnak').get('property')
                         # if the property is not there then they cannot be at the same time in wikibase and wikidata
-                        if self.id.contains_id(wikidata_propertyId):
-                            if self.id.get_id(wikidata_propertyId) == wikibase_propertyId:
-
-                                # if wikidata_propertyId == 'P2884':
-
-                                # if self.id.get_id(wikidata_propertyId) == 'P194' and wikidata_propertyId == "P530":
+                        if self.id.contains_id(wikidata_property_id):
+                            if self.id.get_id(wikidata_property_id) == wikibase_propertyId:
                                 # print(wikidata_claim,"---",wikibase_claim)
                                 (found_here, found_equal_value_here,
                                  more_accurate_here) = self.compare_claim_with_qualifiers_and_references(wikidata_claim,
@@ -1016,12 +1002,12 @@ class WikibaseImporter:
                                 found_more_accurate = more_accurate_here
 
                 if found == True and found_equal_value == False:
-                    claimsToRemove.append(wikibase_c)
+                    claims_to_remove.append(wikibase_c)
                     claim_more_accurate.append(found_more_accurate)
                     print("This claim is deleted::")
                     printer.pprint(wikibase_claim)
                 if alreadyFound == True:
-                    claimsToRemove.append(wikibase_c)
+                    claims_to_remove.append(wikibase_c)
                     claim_more_accurate.append(found_more_accurate)
                     print("This claim is deleted it's a duplicate", wikibase_claim)
 
@@ -1043,10 +1029,10 @@ class WikibaseImporter:
                 break
         # print("is_only_wikidata_updater_user",is_only_wikidata_updater_user)
         claims_found_in_revisions = []
-        print(len(claimsToRemove))
+        print(len(claims_to_remove))
         if not is_only_wikidata_updater_user:
-            for i in range(0, len(claimsToRemove)):
-                claimToRemove = claimsToRemove[i]
+            for i in range(0, len(claims_to_remove)):
+                claimToRemove = claims_to_remove[i]
                 # print("CHECKING CLAIM ",claimToRemove, "---", claim_more_accurate[i],"---", revisions)
                 # go through the history and find the edit where it was added and the user that made that edit
                 if claim_more_accurate[
@@ -1076,12 +1062,12 @@ class WikibaseImporter:
                     if revisions[edit_where_claim_was_added]['user'].lower() != self.appConfig.get('wikibase', 'user').lower():
                         not_remove.append(claimToRemove)
 
-        printer.pprint(claimsToRemove)
+        printer.pprint(claims_to_remove)
         for c in not_remove:
-            claimsToRemove.remove(c)
-        print("claimsToRemove ", claimsToRemove)
-        if len(claimsToRemove) > 0:
-            for claimsToRemoveChunk in chunks(claimsToRemove, 50):
+            claims_to_remove.remove(c)
+        print("claimsToRemove ", claims_to_remove)
+        if len(claims_to_remove) > 0:
+            for claimsToRemoveChunk in chunks(claims_to_remove, 50):
                 wikibase_item.get()
                 wikibase_item.removeClaims(claimsToRemoveChunk,
                                            summary="Removing this statements since they changed in Wikidata")
@@ -1092,18 +1078,18 @@ class WikibaseImporter:
         else:
             wikibase_item = pywikibot.PropertyPage(self.wikibase_repo, wikibase_item.getID())
         wikibase_item.get()
-        newClaims = []
+        new_claims = []
         for claims in wikidata_item.claims:
             for c in wikidata_item.claims.get(claims):
                 wikidata_claim = c.toJSON()
                 found_equal_value = False
-                wikidata_propertyId = wikidata_claim.get('mainsnak').get('property')
-                print(wikidata_propertyId)
+                wikidata_property_id = wikidata_claim.get('mainsnak').get('property')
+                print(wikidata_property_id)
                 if wikibase_item.getID().startswith("Q") or wikibase_item.getID().startswith("P"):
                     for wikibase_claims in wikibase_item.claims:
                         for wikibase_c in wikibase_item.claims.get(wikibase_claims):
                             wikibase_claim = wikibase_c.toJSON()
-                            if self.id.contains_id(wikidata_propertyId):
+                            if self.id.contains_id(wikidata_property_id):
                                 (claim_found, claim_found_equal_value,
                                  more_accurate) = self.compare_claim_with_qualifiers_and_references(wikidata_claim,
                                                                                                     wikibase_claim,
@@ -1138,13 +1124,7 @@ class WikibaseImporter:
                                                     new_references.append(new_reference)
                                             if len(new_references) > 0:
                                                 claim.addSources(new_references)
-                                newClaims.append(claim.toJSON())
-                                # print("wikidata claim ",wikidata_claim)
-                                # data = {}
-                                # data['claims'] = [claim.toJSON()]
-                                # print("Data ", json.dumps(data))
-                                # wikibase_item.editEntity(data)
-
+                                new_claims.append(claim.toJSON())
                             else:
                                 print('The translated claim is None ', wikidata_claim.get('mainsnak'))
                         elif wikidata_claim.get('mainsnak').get('snaktype') == 'novalue':
@@ -1152,29 +1132,18 @@ class WikibaseImporter:
                         else:
                             print('This should not happen ', wikidata_claim.get('mainsnak'))
 
-        printer.pprint("newClaims")
-        printer.pprint(newClaims)
-        print("len: ", len(newClaims))
-        #sys.exit()
-        if len(newClaims) > 0:
+        if len(new_claims) > 0:
+            # exclude the claims that where deleted locally
             if not is_only_wikidata_updater_user:
-                # check if this data was modified or removed by local user
                 temp_new_claims = []
-                for cl in newClaims:
-                    print("single cl::::", cl)
-                    re_add = self.check_claim_was_not_deleted_locally(self.wikibase_repo, revisions, cl)
-                    print("re add", re_add)
-                    if re_add:
-                        temp_new_claims.append(cl)
-                newClaims = temp_new_claims
-            printer.pprint(newClaims)
-            #sys.exit()
-            for claimsToAdd in chunks(newClaims, 20):
+                for claim in new_claims:
+                    if self.check_claim_was_not_deleted_locally(self.wikibase_repo, revisions, claim):
+                        temp_new_claims.append(claim)
+                new_claims = temp_new_claims
+            # add the claims
+            for claimsToAdd in chunks(new_claims, 20):
                 data = {}
                 data['claims'] = claimsToAdd
-
-                import json
-                print("Data ", json.dumps(data))
                 try:
                     wikibase_item.editEntity(data,
                                              summary="Adding these statements since they where added in Wikidata")
@@ -1205,7 +1174,7 @@ class WikibaseImporter:
             return
         print("Change Entity ", wikidata_item.getID())
         if not self.id.contains_id(wikidata_item.getID()):
-            new_id = self.importItem(wikidata_item)
+            new_id = self.import_item(wikidata_item)
             wikibase_item = pywikibot.ItemPage(wikibase_repo, new_id)
             wikibase_item.get()
         else:
@@ -1217,8 +1186,8 @@ class WikibaseImporter:
             self.change_descriptions(wikidata_item, wikibase_item)
             self.wikidata_link(wikibase_item, wikidata_item)
         if statements:
-            self.changeSiteLinks(wikidata_item, wikibase_item)
-            self.changeClaims(wikidata_item, wikibase_item)
+            self.change_site_links(wikidata_item, wikibase_item)
+            self.change_claims(wikidata_item, wikibase_item)
         return wikibase_item
 
     def change_item_given_id(self, wikidata_item, id, wikibase_repo, statements):
@@ -1230,8 +1199,8 @@ class WikibaseImporter:
         self.change_descriptions(wikidata_item, wikibase_item)
         self.wikidata_link(wikibase_item, wikidata_item)
         if statements:
-            self.changeSiteLinks(wikidata_item, wikibase_item)
-            self.changeClaims(wikidata_item, wikibase_item)
+            self.change_site_links(wikidata_item, wikibase_item)
+            self.change_claims(wikidata_item, wikibase_item)
 
     def change_property(self, wikidata_item, wikibase_repo, statements):
         print("Change Property", wikidata_item.getID())
@@ -1251,7 +1220,7 @@ class WikibaseImporter:
             self.changeAliases(wikidata_item, wikibase_item)
             self.change_descriptions(wikidata_item, wikibase_item)
         if statements:
-            self.changeClaims(wikidata_item, wikibase_item)
+            self.change_claims(wikidata_item, wikibase_item)
         return wikibase_item
 
 
@@ -1259,6 +1228,3 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
-
-
-class BreakOutOfMultipleLoops(Exception): pass
