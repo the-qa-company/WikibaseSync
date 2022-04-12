@@ -924,8 +924,6 @@ class WikibaseImporter:
                 ('references' in wikidata_claim and len(wikidata_claim.get('references')) > 0) or (
                 'qualifiers' in wikidata_claim and len(wikidata_claim.get('qualifiers')) > 0)):
             more_accurate = True
-        print(found_equal_value)
-
         return claim_found, found_equal_value, more_accurate
 
     def check_claim_was_not_deleted_locally(self, wikibase_repo, revisions, wikidata_claim):
