@@ -44,9 +44,124 @@ function insertStyle(){
             mutation.addedNodes.forEach(function (added_node) {
                 //console.log(Object.keys(added_node));
                 var entries = Object.entries(added_node);
+                var isStatement = added_node.classList && ['listview-item', 'wikibase-statementgroupview', 'wb-new'].every(function(c){return added_node.classList.contains(c)})
+                var isReference = added_node.classList && ['listview-item', 'wikibase-snakview', 'wb-edit'].every(function(c){return added_node.classList.contains(c)})
+
+
+
                 var focusInput;
 
-                if (entries.length == 2) {
+                if (isStatement || isReference) {
+                    // secondary wikidata autocomplete
+
+                    $('#new .ui-entityselector-input').autocomplete({ //This is the class Name of your desired input source:
+                        source: function (request, response) {
+                            console.log('Request term: ' + request.term);
+                            if(isLocallyAvailable == false){
+                                $.ajax({
+                                    // url: 'https://www.wikidata.org/w/api.php?action=wbsearchentities&search=' + request.term + '&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property',
+                                    url: _wikibasesync_base_url + 'remote-wikidata-query/' + request.term,
+                                    // data: {term: request.term},
+                                    // dataType: "json",
+                                    crossDomain: true,
+                                    headers: {
+                                        // "accept": "application/json",
+                                        "Access-Control-Allow-Origin": "*",
+                                        "Access-Control-Request-Headers3": "x-requested-with"
+                                    },
+                                    success: function (data) {
+                                        console.log(data);
+
+                                        response($.map(data.response.search, function (item) {
+                                            _propertyId = item.id;
+                                            _propertyLabel = item.label;
+                                            return {
+                                                label: item.description,
+                                                value: item.label,
+                                                id: item.id
+                                            }
+                                        }));
+                                    }
+                                });
+                            }else{
+                                $(".ui-autocomplete").hide()
+                                response = null
+                                return null
+                            }
+
+                        },
+                        select: function (event, ui) {
+                            if(!isLocallyAvailable){
+                                console.log("REMOTE OPTION SELECTED")
+                                console.log($(event.target).siblings('button'));
+                                $(event.target).siblings('button')[0].setAttribute('item-id', ui.item.id)
+                                $(event.target).siblings('button')[0].setAttribute('item-description', ui.item.label)
+                                $(event.target).siblings('button')[0].setAttribute('item-value', ui.item.value)
+                            }else{
+                            }
+
+                        }
+                    });
+
+
+                    $('.wikibase-snakview-property input').on('keyup', function () {
+                        //console.log("TYPED VALUE");
+                        var typedValue = $(this).val();
+                        var currentContext = $(this)
+                        //check if there's data found locally
+                        $.ajax({
+                            url: _wikibasesync_base_url + 'local-wikibase-query/' + typedValue,
+                            crossDomain: true,
+                            headers: {
+                                // "accept": "application/json",
+                                "Access-Control-Allow-Origin": "*",
+                                "Access-Control-Request-Headers3": "x-requested-with"
+                            },
+                            success: function (data) {
+                                //console.log("RECEIVED LOCAL DATA");
+                                //console.log(data.response.search.length);
+                                data_length = data.response.search.length
+
+                                if (data_length < 1) {
+                                    console.log("No local data found");
+                                    isLocallyAvailable = false
+                                    $("ui-entityselector-notfound").hide()
+
+                                    //console.log('No found');
+
+
+                                    //focusInput = document.getElementsByClassName("ui-suggester-input ui-entityselector-input")[0].value;
+                                    //console.log(focusInput);
+
+                                    //always remove clone button while typing
+                                    //var inputWithSuggestionParent = $('#new .ui-entityselector-input').parent();
+                                    var appendedButton = currentContext.siblings('.mez-appended-button')
+                                    if (appendedButton.length === 0 && isLocallyAvailable == false) {
+                                            $("<button class='mez-appended-button' onclick='cloneAction(this)'>Clone</button>").insertAfter($(currentContext));
+                                    }
+
+                                    //if (focusInput) {
+                                     //   console.log('in focus input');
+
+                                    //}
+                                } else {
+                                    console.log("IN ELSE")
+                                    //console.log(isLocallyAvailable)
+                                    isLocallyAvailable = true
+
+                                    var appendedButton = currentContext.siblings('.mez-appended-button')
+                                    if((appendedButton.length > 0 && isLocallyAvailable) ||
+                                    ( appendedButton.length > 0 && $('.wikibase-snakview-property input').val() === "")){
+                                        currentContext.siblings('.mez-appended-button').remove()
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                }
+
+                /*if (entries.length == 2) {
                     if (entries[0][1]) {
                     // secondary wikidata autocomplete
 
@@ -155,7 +270,7 @@ function insertStyle(){
                         });
                     });
                     }
-                }
+                }*/
 
 
             });
