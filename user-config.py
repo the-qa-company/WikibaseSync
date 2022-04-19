@@ -1,3 +1,5 @@
+from pywikibot.config2 import usernames
+
 user_families_paths = ['./config']
 mylang = "wikidata"
 family = "wikidata"

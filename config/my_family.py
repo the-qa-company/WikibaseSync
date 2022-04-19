@@ -21,10 +21,6 @@ class Family(family.WikimediaFamily):
 
     name = 'my'
 
-    # langs = {
-    #     'my': 'qanswer-eu.univ-st-etienne.fr',
-    # }
-
     langs = {
         'my': app_config.get('wikibase', 'domain'),
     }
@@ -36,7 +32,6 @@ class Family(family.WikimediaFamily):
             'Category redirect',
         ),
     }
-
 
     # Subpages for documentation.
     doc_subpages = {

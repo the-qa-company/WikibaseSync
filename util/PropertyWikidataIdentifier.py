@@ -1,13 +1,10 @@
 # This class generates an external identifier to Wikidata, i.e. for the entites imported from Wikidata the wikidata
 # ID will be indicated
 import pywikibot
-import re
-
-from pywikibot.data.api import APIError
 from pywikibot.data import api
 
 
-def wikiitemexists(wikibase_repo, label):
+def wiki_item_exists(wikibase_repo, label):
     params = {'action': 'wbsearchentities', 'format': 'json',
               'language': 'en', 'type': 'property', 'limit':1,
               'search': label}
@@ -17,6 +14,7 @@ def wikiitemexists(wikibase_repo, label):
     print(result)
     return result['search']
 
+
 class PropertyWikidataIdentifier:
 
     def __init__(self):
@@ -24,8 +22,8 @@ class PropertyWikidataIdentifier:
         self.propertyIdentifier = None
 
     def get(self, wikibase_repo):
-        if len(wikiitemexists(wikibase_repo, "Wikidata QID"))>0:
-            self.itemIdentifier = str(wikiitemexists(wikibase_repo, "Wikidata QID")[0]['id'])
+        if len(wiki_item_exists(wikibase_repo, "Wikidata QID"))>0:
+            self.itemIdentifier = str(wiki_item_exists(wikibase_repo, "Wikidata QID")[0]['id'])
         else:
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype='external-id')
             data = {}
@@ -35,8 +33,8 @@ class PropertyWikidataIdentifier:
             data['descriptions'] = mydescriptions
             wikibase_item.editEntity(data, summary=u'Insert a property to have a wikidata identifier')
             self.itemIdentifier = str(wikibase_item.getID())
-        if len(wikiitemexists(wikibase_repo, "Wikidata PID"))>0:
-            self.propertyIdentifier = str(wikiitemexists(wikibase_repo, "Wikidata PID")[0]['id'])
+        if len(wiki_item_exists(wikibase_repo, "Wikidata PID"))>0:
+            self.propertyIdentifier = str(wiki_item_exists(wikibase_repo, "Wikidata PID")[0]['id'])
         else:
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, datatype='external-id')
             data = {}
