@@ -31,8 +31,8 @@ class ImportOne(Resource):
 
     def import_thread_spinner(self, query_id):
         def handle():
-            from api_import_one import mth_import_one
-            response = mth_import_one(query_id)
+            from api_import_one import mth_import_one, mth_import_one_without_statements
+            response = mth_import_one_without_statements(query_id)
         t = Thread(target=handle)
         return t
     def get(self, q_id):
