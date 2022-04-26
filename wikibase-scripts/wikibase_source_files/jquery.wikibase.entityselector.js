@@ -6,7 +6,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		return wikidataResults;
 	}
 	var updatedResults = [];
-	wikidataResults.concat(localResults).forEach(function (element) {
+	localResults.concat(wikidataResults).forEach(function (element) {
 		var index = updatedResults.findIndex(function(x){
 			return x.label.toLowerCase().trim() == element.label && x.description == element.description.toLowerCase().trim()
 		})
