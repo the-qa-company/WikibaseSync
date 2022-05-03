@@ -789,7 +789,11 @@
 			}
 			btn.attr('item-id',self._item_id);
 			btn.css("margin-left","0.5rem");
-			btn.css("margin-top","1rem");
+			btn.css("margin-top","1.5rem");
+			btn.css("color","#0645ad");
+			btn.css("background-color","white");
+			btn.css("border-color","#0645ad");
+			btn.css("border-radius","5px");
 			btn.on('click', function () {
 				//api call
 				var WIKIBASE_SYNC_URL = "http://127.0.0.1:5000/";
