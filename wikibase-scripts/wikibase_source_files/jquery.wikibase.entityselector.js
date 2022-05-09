@@ -8,9 +8,12 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 	var updatedResults = [];
 	localResults.concat(wikidataResults).forEach(function (element) {
 		var index = updatedResults.findIndex(function(x){
-			return x.label.toLowerCase().trim() == element.label && x.description == element.description.toLowerCase().trim()
+			return x.label.toLowerCase().trim() == element.label.toLowerCase().trim() && x.description.toLowerCase().trim() == element.description.toLowerCase().trim()
 		})
 		if (index == -1) {
+			if (element.repository.toLowerCase() !== "local") {
+				element.label = element.label + " [source: wikidata]"
+			}
 			updatedResults.push(element);
 		}
 	})
