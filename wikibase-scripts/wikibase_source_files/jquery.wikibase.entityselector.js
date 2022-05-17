@@ -707,11 +707,6 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		_select: function ( entityStub ) {
 			var id = entityStub && entityStub.id;
 			this._selectedEntity = entityStub;
-			const ff = {...entityStub}
-			console.log(ff);
-
-			//var bootstrapcdn = "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>"
-			//var loader = "<div class='spinner-border'></div>"
 
 			if ( id ) {
 				var self = this;
@@ -734,9 +729,9 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 						success: function (data) {
 							console.log(data);
 							if (data.pid) {
-								console.log($(self.focused).siblings('p').remove());
+								$(self.focused).siblings('p').remove();
 								id = data.pid;
-								console.log(self._selectedEntity);
+								//console.log(self._selectedEntity);
 
 								if (self.options.type.toLowerCase() == "property") {
 									self._selectedEntity.id = id;
