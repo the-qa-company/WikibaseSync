@@ -34,6 +34,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 	 * @ignore
 	 */
 	var IS_MW_CONTEXT = mw !== undefined && mw.msg;
+	var focused;
 
 	/**
 	 * Whether actual `entityselector` resource loader module is loaded.
@@ -575,6 +576,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 			$( this.options.menu )
 			.off( 'selected.suggester' )
 			.on( 'selected.entityselector', function ( event, item ) {
+				self.focused = $(':focus')[0];
 				if ( item.getEntityStub ) {
 					if ( !self.options.caseSensitive
 						&& item.getValue().toLowerCase() === self._term.toLowerCase()
@@ -707,9 +709,15 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 			this._selectedEntity = entityStub;
 			const ff = {...entityStub}
 			console.log(ff);
+
+			//var bootstrapcdn = "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>"
+			//var loader = "<div class='spinner-border'></div>"
+
 			if ( id ) {
 				var self = this;
 				if (entityStub.repository !== "local") {
+					var cloningEl = '<p style="margin-top: 1.5rem;">cloning...<p/>';
+					$(cloningEl).insertAfter(self.focused);
 					//remote source, clone
 
 					//api call
@@ -726,6 +734,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 						success: function (data) {
 							console.log(data);
 							if (data.pid) {
+								console.log($(self.focused).siblings('p').remove());
 								id = data.pid;
 								console.log(self._selectedEntity);
 
