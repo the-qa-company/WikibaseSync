@@ -12,7 +12,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		})
 		if (index == -1) {
 			if (element.repository.toLowerCase() !== "local") {
-				element.label = element.label + " [source: wikidata]"
+				element.label = "[source: wikidata] " + element.label
 			}
 			updatedResults.push(element);
 		}
@@ -329,7 +329,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 					data: self._getSearchApiParameters( term ),
 					success: function(data){
 						$.ajax({
-							url: WIKIBASE_SYNC_URL + 'remote-wikidata-query/' + term,
+							url: WIKIBASE_SYNC_URL + 'remote-wikidata-query/' + term + "/" + self.options.type,
 							crossDomain: true,
 							headers: {
 								"Access-Control-Allow-Origin": "*",
@@ -705,8 +705,53 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		_select: function ( entityStub ) {
 			var id = entityStub && entityStub.id;
 			this._selectedEntity = entityStub;
+			const ff = {...entityStub}
+			console.log(ff);
 			if ( id ) {
-				this._trigger( 'selected', null, [ id ] );
+				var self = this;
+				if (entityStub.repository !== "local") {
+					//remote source, clone
+
+					//api call
+					var WIKIBASE_SYNC_URL = "http://127.0.0.1:5000/";
+					var full_endpoint = WIKIBASE_SYNC_URL + 'import-wikidata-item/' + id;
+					$.ajax({
+						url: full_endpoint,
+						crossDomain: true,
+						headers: {
+							// "accept": "application/json",
+							"Access-Control-Allow-Origin": "*",
+							"Access-Control-Request-Headers3": "x-requested-with"
+						},
+						success: function (data) {
+							console.log(data);
+							if (data.pid) {
+								id = data.pid;
+								console.log(self._selectedEntity);
+
+								if (self.options.type.toLowerCase() == "property") {
+									self._selectedEntity.id = id;
+									self._selectedEntity.title = "Property:" + id;
+									self._selectedEntity.repository = "local";
+									self._selectedEntity.url = "http://localhost/wiki/Property:" + id;
+									self._selectedEntity.pageid = null;
+								} else if (self.options.type.toLowerCase() == "item"){
+									self._selectedEntity.id = id;
+									self._selectedEntity.title = id;
+									self._selectedEntity.repository = "local";
+									self._selectedEntity.url = "http://localhost/wiki/" + id;
+									self._selectedEntity.pageid = null;
+								}
+
+								//this._selectedEntity = { id: id };
+								//TODO
+								self._trigger( 'selected', null, [ id ] );
+							}
+						}
+					});
+				} else {
+					this._trigger( 'selected', null, [ id ] );
+				}
 			}
 		},
 

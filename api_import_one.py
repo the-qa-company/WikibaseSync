@@ -51,9 +51,11 @@ def mth_import_one_without_statements(arg):
         wikidata_item = pywikibot.ItemPage(wikidata_repo, arg)
         wikidata_item.get()
         print("after get")
-        wikibase_importer.change_item(wikidata_item, wikibase_repo, False)
+        item = wikibase_importer.change_item(wikidata_item, wikibase_repo, False)
     elif arg.startswith("P"):
         wikidata_property = pywikibot.PropertyPage(wikidata_repo, arg)
         wikidata_property.get()
-        wikibase_importer.change_property(wikidata_property, wikibase_repo, False)
+        item = wikibase_importer.change_property(wikidata_property, wikibase_repo, False)
+    if item:
+        return item
     return True

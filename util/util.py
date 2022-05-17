@@ -1167,6 +1167,8 @@ class WikibaseImporter:
             new_id = self.import_item(wikidata_item)
             wikibase_item = pywikibot.ItemPage(wikibase_repo, new_id)
             wikibase_item.get()
+            if not statements:
+                return new_id
         else:
             print("This entity corresponds to ", self.id.get_id(wikidata_item.getID()))
             wikibase_item = pywikibot.ItemPage(wikibase_repo, self.id.get_id(wikidata_item.getID()))
@@ -1175,6 +1177,8 @@ class WikibaseImporter:
             self.change_aliases(wikidata_item, wikibase_item)
             self.change_descriptions(wikidata_item, wikibase_item)
             self.wikidata_link(wikibase_item, wikidata_item)
+            if not statements:
+                return self.id.get_id(wikidata_item.getID())
         if statements:
             self.change_site_links(wikidata_item, wikibase_item)
             self.change_claims(wikidata_item, wikibase_item)
@@ -1192,16 +1196,22 @@ class WikibaseImporter:
             self.change_site_links(wikidata_item, wikibase_item)
             self.change_claims(wikidata_item, wikibase_item)
 
-    def change_property(self, wikidata_item, wikibase_repo, statements):
+    def change_property(self, wikidata_item, wikibase_repo, statements, ):
         print("Change Property", wikidata_item.getID())
         wikidata_item.get()
         wikibase_item = None
         if not self.id.contains_id(wikidata_item.getID()):
             new_id = self.importProperty(wikidata_item)
+            # if not statements:
+            #     return new_id  # import done from front end clone
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, new_id, datatype=wikidata_item.type)
             wikibase_item.get()
+            if not statements:
+                return new_id
         else:
             print("Entering here")
+            # if not statements:
+            #     return self.id.get_id(wikidata_item.getID())  # import done from front end clone
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, self.id.get_id(wikidata_item.getID()),
                                                    datatype=wikidata_item.type)
             wikibase_item.get()
@@ -1209,6 +1219,8 @@ class WikibaseImporter:
             self.change_labels(wikidata_item, wikibase_item)
             self.change_aliases(wikidata_item, wikibase_item)
             self.change_descriptions(wikidata_item, wikibase_item)
+            if not statements:
+                return self.id.get_id(wikidata_item.getID())
         if statements:
             self.change_claims(wikidata_item, wikibase_item)
         return wikibase_item
