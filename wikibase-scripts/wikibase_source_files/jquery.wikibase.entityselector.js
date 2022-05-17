@@ -716,7 +716,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 			if ( id ) {
 				var self = this;
 				if (entityStub.repository !== "local") {
-					var cloningEl = '<p style="margin-top: 1.5rem;">cloning...<p/>';
+					var cloningEl = '<p style="margin-top: 1.5rem;">importing...<p/>';
 					$(cloningEl).insertAfter(self.focused);
 					//remote source, clone
 
