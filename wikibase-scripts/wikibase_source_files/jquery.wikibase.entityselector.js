@@ -197,7 +197,6 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 				};
 			}
 
-			//console.log('MY OUTPUT from outside',this.options);
 
 			$.ui.suggester.prototype._create.call( this );
 
@@ -311,7 +310,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		 */
 		_initDefaultSource: function () {
 			var self = this;
-
+			wikidataResults = [];
 			return function ( term ) {
 				var deferred = $.Deferred(),
 					hookResults = self._fireSearchHook( term );
