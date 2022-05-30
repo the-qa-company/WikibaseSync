@@ -197,7 +197,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 				};
 			}
 
-
+			console.log(mw);
 			$.ui.suggester.prototype._create.call( this );
 
 			this.element
@@ -704,6 +704,8 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		 * @param {Object} entityStub
 		 */
 		_select: function ( entityStub ) {
+			//conf = mw.config.get( 'wgWikibaseSync' );
+			//console.log("conf",conf)
 			var id = entityStub && entityStub.id;
 			this._selectedEntity = entityStub;
 
