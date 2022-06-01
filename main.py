@@ -19,11 +19,17 @@ class Index(Resource):
 
 # dummy
 class Sync(Resource):
-    def get(self, item_name, id):
-        return {"data": "Sync" + item_name}
+    def import_thread_spinner(self, query_id):
+        def handle():
+            from api_import_one import mth_import_one, mth_import_one_without_statements
+            response = mth_import_one(query_id)
+        t = Thread(target=handle)
+        return t
 
-    def post(self):
-        return {"data": "Nothing posted for now "}
+    def get(self, q_id):
+        self.import_thread_spinner(q_id).start()
+        payload = {"status_code": 200, "message": "Import triggered"}
+        return payload
 
 
 # import one
@@ -42,7 +48,7 @@ class ImportOne(Resource):
 
         from api_import_one import mth_import_one, mth_import_one_without_statements
         response = mth_import_one_without_statements(q_id)
-        print(response)
+        # print(response)
         if response:
             payload = {"status_code": 200, "message": "Import successful", "pid": response}
         else:
@@ -94,7 +100,7 @@ class WikibaseQuery(Resource):
 
 # ROUTES
 api.add_resource(Index, "/")
-api.add_resource(Sync, "/sync/<string:item_name>/<int:id>")
+api.add_resource(Sync, "/sync/<string:q_id>")
 api.add_resource(ImportOne, "/import-wikidata-item/<string:q_id>")
 api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>/<string:query_type>")
 api.add_resource(WikibaseQuery, "/local-wikibase-query/<string:query_string>")

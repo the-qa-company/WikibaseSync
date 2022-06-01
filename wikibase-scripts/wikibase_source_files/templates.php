@@ -57,6 +57,7 @@ HTML;
 <div class="wikibase-statementgroupview" id="$3" data-property-id="$4">
 	<div class="wikibase-statementgroupview-property">
 		<div class="wikibase-statementgroupview-property-label" dir="auto">$1</div>
+		<div class="wikibase-statementgroupview-property-clonebtn">$5</div>
 	</div>
 	<!-- wikibase-statementlistview -->$2
 </div>
