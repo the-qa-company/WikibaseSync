@@ -29,8 +29,6 @@ class Sync(Resource):
     def get(self, q_id):
         t = self.import_thread_spinner(q_id)
         t.start()
-        print("THREAD:::::")
-        print(t)
         if not t.is_alive():
             print("THREAD:::::")
             payload = {"status_code": 200, "completed": True, "message": "Import process complete"}
