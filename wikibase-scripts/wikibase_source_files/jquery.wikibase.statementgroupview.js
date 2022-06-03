@@ -11,7 +11,7 @@ function createSynButton(_context) {
 	var _wikibasePropertyValue = _context.value().getItemContainer()._items[0]._claim._mainSnak._value._value;
 	self.wikibasePropertyValue = _wikibasePropertyValue;
 
-	console.log(_context.wikibasePropertyKey,_context.wikibasePropertyValue);
+	//console.log(_context.wikibasePropertyKey,_context.wikibasePropertyValue);
 
 	btn.on('click', function () {
 		//api call
