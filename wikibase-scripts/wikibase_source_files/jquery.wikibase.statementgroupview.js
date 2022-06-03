@@ -14,7 +14,7 @@ function createSynButton(_context) {
 	//console.log(_context.wikibasePropertyKey,_context.wikibasePropertyValue);
 
 	btn.on('click', function () {
-		btn.text("syncing")
+		btn.text("syncing...")
 		//api call
 		var WIKIBASE_SYNC_URL = "http://127.0.0.1:5000/";
 		var full_endpoint = WIKIBASE_SYNC_URL + 'sync/' + self.wikibasePropertyValue;
