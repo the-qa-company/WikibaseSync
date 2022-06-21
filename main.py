@@ -33,14 +33,6 @@ class Sync(Resource):
         payload = {"status_code": 200, "completed": True, "message": "Import process complete"}
         return payload
 
-        # if not t.is_alive():
-        #     print("THREAD:::::")
-        #     payload = {"status_code": 200, "completed": True, "message": "Import process complete"}
-        #     return payload
-        # else:
-        #     payload = {"status_code": 500, "completed": False, "message": "Import process could not be completed"}
-        #     return payload
-
 
 # import one
 class ImportOne(Resource):
