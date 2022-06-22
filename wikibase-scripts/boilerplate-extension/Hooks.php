@@ -29,7 +29,12 @@ class Hooks implements \MediaWiki\Hook\BeforePageDisplayHook{
 	 * @param \Skin $skin
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
-		$out->addModules( 'ext.boilerPlate' );
+		$user = \RequestContext::getMain()->getUser();
+
+		//only enable extension if user is logged in
+		if(!empty($user) && $user->getId() != 0){
+			$out->addModules( 'ext.boilerPlate' );
+		}
 		$config = $out->getConfig();
 		if ( $config->get( 'BoilerPlateVandalizeEachPage' ) ) {
 			$out->addModules( 'oojs-ui-core' );
