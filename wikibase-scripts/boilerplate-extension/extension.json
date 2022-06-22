@@ -21,6 +21,10 @@
 		"BoilerPlateVandalizeEachPage": {
 			"description": "Write 'BoilerPlate was here' on each page",
 			"value": false
+		},
+		"BoilerPlateWikibaseSyncConfig": {
+			"description": "Configuration settings for wikibasesync",
+			"value": true
 		}
 	},
 	"HookHandlers": {

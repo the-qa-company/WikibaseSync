@@ -38,7 +38,7 @@ class Hooks implements \MediaWiki\Hook\BeforePageDisplayHook{
 	}
 
 	public function onResourceLoaderGetConfigVars( array &$vars, $string, Config $config ): void {
-		$vars['wgVisualEditor'] = ["local_server_url" => "http://127.0.0.1:5000"];
+		$vars['wgVisualEditor'] = $config->get( 'BoilerPlateWikibaseSyncConfig' );
 	}
 }
 

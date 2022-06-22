@@ -107,21 +107,6 @@ api.add_resource(ImportOne, "/import-wikidata-item/<string:q_id>")
 api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>/<string:query_type>")
 api.add_resource(WikibaseQuery, "/local-wikibase-query/<string:query_string>")
 
-# @app.route("/")
-# def hello_world():
-#     return "<p>Hello, World!</p>"
-#
-#
-# @app.route("/syncc")
-# def syncc():
-#     return "Sync page"
-#
-# @app.route("/import-one/<string:id>")
-# def get(id):
-#     from import_one import mth_import_one
-#     mth_import_one(id)
-#     return {"message": "import complete"}
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

@@ -7,7 +7,7 @@ var conf = mw.config.get('wgVisualEditor');
 mw.boilerPlate = {};
 var wikidataResults = [];
 var WIKIBASE_SYNC_URL = conf.local_server_url;
-//console.log(WIKIBASE_SYNC_URL);
+//console.log( conf);
 
 var datamodel = require( 'wikibase.datamodel' );
 
@@ -50,10 +50,10 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 	}
 
 
-	if (_wikibasePropertyKey == "P1" || _wikibasePropertyKey == "P2") {
+	if (_wikibasePropertyKey == conf.PID || _wikibasePropertyKey == conf.QID) {
 		self.wikibasePropertyKey = _wikibasePropertyKey;
 		// Only attach button for wikidata pid or qid properties which are always P1 and P2
-		self.$cloneBtn.text('');
+		//self.$propertyLabel.text('');
 		createSynButton(self)
 		// btn = $("<button>Sync</button>")
 
@@ -67,7 +67,7 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 		// console.log(self.wikibasePropertyKey,self.wikibasePropertyValue);
 
 	} else {
-		self.$cloneBtn.text('')
+		//self.$propertyLabel.text('')
 	}
 	// console.log(JSON.stringify(self.options, null, 2));
 };
@@ -220,7 +220,7 @@ function createSynButton(_context) {
 	btn.css("border-color", "#0645ad");
 	btn.css("border-radius", "5px");
 
-	_context.$cloneBtn.append(btn);
+	_context.$propertyLabel.append(btn);
 
 	var _wikibasePropertyValue = _context.value().getItemContainer()._items[0]._claim._mainSnak._value._value;
 	self.wikibasePropertyValue = _wikibasePropertyValue;
@@ -240,7 +240,7 @@ function createSynButton(_context) {
 				"Access-Control-Request-Headers3": "x-requested-with"
 			},
 			success: function (data) {
-				if (data.completed) {
+				if (data) {
 					console.log(data);
 					location.reload();
 				}
