@@ -215,6 +215,7 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 function createSynButton(_context) {
 	btn = $("<button>sync</button>")
 	btn.css("margin-top", ".5rem");
+	btn.css("margin-left", "5px");
 	btn.css("color", "#0645ad");
 	btn.css("background-color", "white");
 	btn.css("border-color", "#0645ad");
