@@ -76,4 +76,6 @@ foreach (glob("LocalSettings.d/*.php") as $filename)
 $wgShowExceptionDetails = true;
 
 //IMPORTANT FOR BoilerPlate EXTENSION
-$wgBoilerPlateWikibaseSyncConfig = ["local_server_url" => "http://127.0.0.1:5000", "PID" => "P1", "QID" => "P2"];
+$wgWikibaseSyncUrl = "http://127.0.0.1:5000";
+$wgPID = "P1";
+$wgQID = "P2";

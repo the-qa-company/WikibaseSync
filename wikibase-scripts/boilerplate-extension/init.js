@@ -6,7 +6,7 @@
 var conf = mw.config.get('wgVisualEditor');
 mw.boilerPlate = {};
 var wikidataResults = [];
-var WIKIBASE_SYNC_URL = conf.local_server_url;
+var WIKIBASE_SYNC_URL = conf.wikibasesync_server_url;
 //console.log( conf);
 
 var datamodel = require( 'wikibase.datamodel' );
@@ -214,7 +214,7 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 
 function createSynButton(_context) {
 	btn = $("<button>sync</button>")
-	btn.css("margin-top", ".5rem");
+	//btn.css("margin-top", ".5rem");
 	btn.css("margin-left", "5px");
 	btn.css("color", "#0645ad");
 	btn.css("background-color", "white");
