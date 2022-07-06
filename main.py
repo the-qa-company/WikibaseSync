@@ -50,7 +50,7 @@ class ImportOne(Resource):
 
         from api_import_one import mth_import_one, mth_import_one_without_statements
         response = mth_import_one_without_statements(q_id)
-        # print(response)
+        #   print(response)
         if response:
             payload = {"status_code": 200, "message": "Import successful", "pid": response}
         else:

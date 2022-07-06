@@ -180,7 +180,7 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 					"Access-Control-Request-Headers3": "x-requested-with"
 				},
 				success: function (data) {
-					console.log(data);
+					//console.log(data);
 					if (data.pid) {
 						$(self.focused).siblings('p').remove();
 						id = data.pid;
@@ -301,7 +301,7 @@ $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
 							"Access-Control-Request-Headers3": "x-requested-with"
 						},
 						success: function (data) {
-							console.log("response: ",data);
+							//console.log("response: ",data);
 							//window.history.back();
 							window.location.replace('http://localhost/wiki/item:'+data.pid);
 							//window.location.replace('https://gmail.com');
@@ -349,7 +349,7 @@ function createSynButton(_context) {
 			},
 			success: function (data) {
 				if (data) {
-					console.log(data);
+					//console.log(data);
 					location.reload();
 				}
 
