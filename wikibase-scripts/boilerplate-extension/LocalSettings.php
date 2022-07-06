@@ -72,10 +72,10 @@ foreach (glob("LocalSettings.d/*.php") as $filename)
     include $filename;
 }
 
-//IMPORTANT FOR DESCRIPTIVE ERROR MESSAGES WHERE APPLICABLE
+//EXTENSIONS SETTINGS
 $wgShowExceptionDetails = true;
 
-//IMPORTANT FOR BoilerPlate EXTENSION
+wfLoadExtension( 'WikibaseSync' );
 $wgWikibaseSyncUrl = "http://127.0.0.1:5000";
 $wgPID = "P1";
 $wgQID = "P2";

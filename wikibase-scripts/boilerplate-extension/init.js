@@ -100,7 +100,7 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 						"Access-Control-Request-Headers3": "x-requested-with"
 					},
 					success: function (data) {
-						console.log(data);
+						//console.log(data);
 						wikidataResults = data.response.search;
 					}
 				});
@@ -212,6 +212,113 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 	}
 };
 
+// overwrite search result default behaviour
+// $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
+// 	var PARENT = $.wikibase.entityselector;
+// 	PARENT.prototype._initMenu.apply( this, arguments );
+
+// 	if ( this.options.suggestionsPlaceholder ) {
+// 		ooMenu.option( 'customItems' ).unshift( this.options.suggestionsPlaceholder );
+// 	}
+
+// 	ooMenu.element.addClass( 'wikibase-entitysearch-list' );
+
+// 	$( ooMenu )
+// 	.off( 'selected' )
+// 	.on( 'selected.entitysearch', function ( event, item ) {
+// 		event.preventDefault();
+// 		var itemEntityStub = item.getEntityStub();
+
+// 		//clone if item is sourced from wikidata
+// 		if (itemEntityStub.repository.toLowerCase() === "wikidata") {
+// 			console.log("f: ",itemEntityStub);
+
+// 			//api call
+// 			var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + itemEntityStub.id;
+// 			$.ajax({
+// 				url: full_endpoint,
+// 				crossDomain: true,
+// 				// async: false,
+// 				headers: {
+// 					"Access-Control-Allow-Origin": "*",
+// 					"Access-Control-Request-Headers3": "x-requested-with"
+// 				},
+// 				success: function (data) {
+// 					console.log("response: ",data);
+// 					window.location.href = 'http://localhost/wiki/item:'+data.pid;
+
+// 				}
+// 			});
+// 		}else{
+// 			if ( event.originalEvent
+// 				&& /^key/.test( event.originalEvent.type )
+// 				&& !( item instanceof $.ui.ooMenu.CustomItem )
+// 			) {
+// 				window.location.href = item.getEntityStub().url;
+// 			}
+// 		}
+// 	} );
+
+// 	return ooMenu;
+// }
+
+// overwrite search result default behaviour sec
+$.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
+	var PARENT = $.wikibase.entityselector;
+	PARENT.prototype._initMenu.apply( this, arguments );
+
+	if ( this.options.suggestionsPlaceholder ) {
+		ooMenu.option( 'customItems' ).unshift( this.options.suggestionsPlaceholder );
+	}
+
+	ooMenu.element.addClass( 'wikibase-entitysearch-list' );
+
+	//console.log(ooMenu.element[0].querySelectorAll("a"));
+	$( ooMenu )
+	.off( 'selected' )
+	.on( 'selected.entitysearch', function ( event, item ) {
+		if ( event.originalEvent
+			// && /^key/.test( event.originalEvent.type )
+			&& !( item instanceof $.ui.ooMenu.CustomItem )
+		) {
+			var itemEntityStub = item.getEntityStub();
+			if (itemEntityStub) {
+				if (itemEntityStub.repository.toLowerCase() === "wikidata") {
+					//console.log("f: ",itemEntityStub);
+					$("a[tabindex='-1']").click(function(e) {
+						e.preventDefault();
+						});
+
+					//api call
+					var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + itemEntityStub.id;
+					$.ajax({
+						url: full_endpoint,
+						crossDomain: true,
+						//async: false,
+						//global: false,
+						headers: {
+							"Access-Control-Allow-Origin": "*",
+							"Access-Control-Request-Headers3": "x-requested-with"
+						},
+						success: function (data) {
+							console.log("response: ",data);
+							//window.history.back();
+							window.location.replace('http://localhost/wiki/item:'+data.pid);
+							//window.location.replace('https://gmail.com');
+
+						}
+					});
+				}else{
+					window.location.href = item.getEntityStub().url;
+					//window.location.replace('https://twitter.com');
+				}
+			}
+		}
+	} );
+
+	return ooMenu;
+}
+
 function createSynButton(_context) {
 	btn = $("<button>sync</button>")
 	//btn.css("margin-top", ".5rem");
@@ -264,7 +371,7 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 		})
 		if (index == -1) {
 			if (element.repository.toLowerCase() !== "local") {
-				element.label = "[source: wikidata] " + element.label
+				element.label = "[clone from wikidata:] " + element.label
 			}
 			updatedResults.push(element);
 		}
@@ -273,3 +380,4 @@ function removeExistingRecordsFromWikidataResults(wikidataResults, localResults)
 
 
 };
+
