@@ -4,7 +4,7 @@
 		"mez"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:BoilerPlate",
-	"descriptionmsg": "This is a Wikibase extension to use and sync entities between Wikibases",
+	"descriptionmsg": "This is a Wikibase extentsion to use and sync entities between Wikibases",
 	"license-name": "GPL-2.0-or-later",
 	"type": "other",
 	"requires": {
@@ -18,12 +18,8 @@
 			"description": "wikibasesync url",
 			"value": true
 		},
-		"PID": {
-			"description": "PID",
-			"value": true
-		},
-		"QID": {
-			"description": "QID",
+		"apiKey": {
+			"description": "API Key to wikibase sync",
 			"value": true
 		}
 	},

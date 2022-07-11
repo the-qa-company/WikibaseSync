@@ -7,7 +7,10 @@ var conf = mw.config.get('wgVisualEditor');
 mw.boilerPlate = {};
 var wikidataResults = [];
 var WIKIBASE_SYNC_URL = conf.wikibasesync_server_url;
+var API_KEY = conf.api_key;
 //console.log( conf);
+
+var count = 0;
 
 var datamodel = require( 'wikibase.datamodel' );
 
@@ -43,33 +46,20 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 			self._trigger('afterremove');
 		});
 
-	//self.$cloneBtn.text('hello world');
+
 	var _wikibasePropertyKey = "";
 	if (self.value()) {
 		_wikibasePropertyKey = self.value().getKey();
+
+		//PREFERRED APPROACH
+		if ($("a:contains('Wikidata QID')")) {
+			if (count == 0){
+				createSyncButtons(self);
+				count = count + 1;
+			}
+		};
 	}
 
-
-	if (_wikibasePropertyKey == conf.PID || _wikibasePropertyKey == conf.QID) {
-		self.wikibasePropertyKey = _wikibasePropertyKey;
-		// Only attach button for wikidata pid or qid properties which are always P1 and P2
-		//self.$propertyLabel.text('');
-		createSynButton(self)
-		// btn = $("<button>Sync</button>")
-
-		// self.$cloneBtn.append(btn);
-
-		// //console.log("val",self.value());
-		// //var _wikibasePropertyValue = "";
-		// var _wikibasePropertyValue = self.value().getItemContainer()._items[0]._claim._mainSnak._value._value;
-		// self.wikibasePropertyValue = _wikibasePropertyValue;
-
-		// console.log(self.wikibasePropertyKey,self.wikibasePropertyValue);
-
-	} else {
-		//self.$propertyLabel.text('')
-	}
-	// console.log(JSON.stringify(self.options, null, 2));
 };
 
 $.wikibase.entityselector.prototype._initDefaultSource = function () {
@@ -93,7 +83,7 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 			data: self._getSearchApiParameters( term ),
 			success: function(data){
 				$.ajax({
-					url: WIKIBASE_SYNC_URL + '/remote-wikidata-query/' + term + "/" + self.options.type,
+					url: WIKIBASE_SYNC_URL + '/remote-wikidata-query/' + term + "/" + self.options.type + "/" + API_KEY,
 					crossDomain: true,
 					headers: {
 						"Access-Control-Allow-Origin": "*",
@@ -126,18 +116,11 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 					}
 				}
 
-				//TODO MERGE THE WIKIDATA RESULTS WITH RESPONSE SEARCH
-				// console.log("hooksResults");
-				// console.log(hookResults);
-				// console.log("wikidataResults");
-				// console.log(wikidataResults);
-				// console.log("wikibase results");
-				// console.log(response.search);
-				// UPDATE THE TITLE AND SOURCE TO REFELECT WIKIDATA
+
+				// UPDATE THE TITLE AND SOURCE TO REFLECT WIKIDATA
 				// REMOVE WIKIDATA RESULTS THAT ALREADY EXIST IN WIKIBASE USING FOREACH
 				var updatedWikidataResults = removeExistingRecordsFromWikidataResults(wikidataResults, response.search)
 				//console.log("updatedWikidataResults", updatedWikidataResults);
-				//self._combineResults( hookResults, response.search ).then( function ( results ) {
 				self._combineResults( hookResults, updatedWikidataResults ).then( function ( results ) {
 					//console.log(results)
 					deferred.resolve(
@@ -157,8 +140,6 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 };
 
 $.wikibase.entityselector.prototype._select = function ( entityStub ) {
-	//conf = mw.config.get( 'wgWikibaseSync' );
-	//console.log("conf",conf)
 	var id = entityStub && entityStub.id;
 	this._selectedEntity = entityStub;
 
@@ -170,7 +151,7 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 			//remote source, clone
 
 			//api call
-			var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + id;
+			var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + id + "/" + API_KEY;
 			$.ajax({
 				url: full_endpoint,
 				crossDomain: true,
@@ -180,11 +161,10 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 					"Access-Control-Request-Headers3": "x-requested-with"
 				},
 				success: function (data) {
-					//console.log(data);
+					console.log(data);
 					if (data.pid) {
 						$(self.focused).siblings('p').remove();
 						id = data.pid;
-						//console.log(self._selectedEntity);
 
 						if (self.options.type.toLowerCase() == "property") {
 							self._selectedEntity.id = id;
@@ -200,8 +180,6 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 							self._selectedEntity.pageid = null;
 						}
 
-						//this._selectedEntity = { id: id };
-						//TODO
 						self._trigger( 'selected', null, [ id ] );
 					}
 				}
@@ -212,55 +190,6 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 	}
 };
 
-// overwrite search result default behaviour
-// $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
-// 	var PARENT = $.wikibase.entityselector;
-// 	PARENT.prototype._initMenu.apply( this, arguments );
-
-// 	if ( this.options.suggestionsPlaceholder ) {
-// 		ooMenu.option( 'customItems' ).unshift( this.options.suggestionsPlaceholder );
-// 	}
-
-// 	ooMenu.element.addClass( 'wikibase-entitysearch-list' );
-
-// 	$( ooMenu )
-// 	.off( 'selected' )
-// 	.on( 'selected.entitysearch', function ( event, item ) {
-// 		event.preventDefault();
-// 		var itemEntityStub = item.getEntityStub();
-
-// 		//clone if item is sourced from wikidata
-// 		if (itemEntityStub.repository.toLowerCase() === "wikidata") {
-// 			console.log("f: ",itemEntityStub);
-
-// 			//api call
-// 			var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + itemEntityStub.id;
-// 			$.ajax({
-// 				url: full_endpoint,
-// 				crossDomain: true,
-// 				// async: false,
-// 				headers: {
-// 					"Access-Control-Allow-Origin": "*",
-// 					"Access-Control-Request-Headers3": "x-requested-with"
-// 				},
-// 				success: function (data) {
-// 					console.log("response: ",data);
-// 					window.location.href = 'http://localhost/wiki/item:'+data.pid;
-
-// 				}
-// 			});
-// 		}else{
-// 			if ( event.originalEvent
-// 				&& /^key/.test( event.originalEvent.type )
-// 				&& !( item instanceof $.ui.ooMenu.CustomItem )
-// 			) {
-// 				window.location.href = item.getEntityStub().url;
-// 			}
-// 		}
-// 	} );
-
-// 	return ooMenu;
-// }
 
 // overwrite search result default behaviour sec
 $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
@@ -284,13 +213,13 @@ $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
 			var itemEntityStub = item.getEntityStub();
 			if (itemEntityStub) {
 				if (itemEntityStub.repository.toLowerCase() === "wikidata") {
-					//console.log("f: ",itemEntityStub);
+
 					$("a[tabindex='-1']").click(function(e) {
 						e.preventDefault();
 						});
 
 					//api call
-					var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + itemEntityStub.id;
+					var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + itemEntityStub.id + "/" + API_KEY;
 					$.ajax({
 						url: full_endpoint,
 						crossDomain: true,
@@ -301,16 +230,14 @@ $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
 							"Access-Control-Request-Headers3": "x-requested-with"
 						},
 						success: function (data) {
-							//console.log("response: ",data);
+							console.log("response: ",data);
 							//window.history.back();
 							window.location.replace('http://localhost/wiki/item:'+data.pid);
-							//window.location.replace('https://gmail.com');
 
 						}
 					});
 				}else{
 					window.location.href = item.getEntityStub().url;
-					//window.location.replace('https://twitter.com');
 				}
 			}
 		}
@@ -319,8 +246,9 @@ $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
 	return ooMenu;
 }
 
-function createSynButton(_context) {
+function createSyncButtons(_context) {
 	btn = $("<button>sync</button>")
+	btn2 = $("<button>sync label</button>")
 	//btn.css("margin-top", ".5rem");
 	btn.css("margin-left", "5px");
 	btn.css("color", "#0645ad");
@@ -328,7 +256,14 @@ function createSynButton(_context) {
 	btn.css("border-color", "#0645ad");
 	btn.css("border-radius", "5px");
 
+	//btn2.css("margin-left", "5px");
+	btn2.css("color", "#0645ad");
+	btn2.css("background-color", "white");
+	btn2.css("border-color", "#0645ad");
+	btn2.css("border-radius", "5px");
+
 	_context.$propertyLabel.append(btn);
+	_context.$propertyLabel.append(btn2);
 
 	var _wikibasePropertyValue = _context.value().getItemContainer()._items[0]._claim._mainSnak._value._value;
 	self.wikibasePropertyValue = _wikibasePropertyValue;
@@ -338,7 +273,30 @@ function createSynButton(_context) {
 	btn.on('click', function () {
 		btn.text("syncing...");
 		//api call
-		var full_endpoint = WIKIBASE_SYNC_URL + '/sync/' + self.wikibasePropertyValue;
+		full_endpoint = WIKIBASE_SYNC_URL + '/sync/' + self.wikibasePropertyValue + "/" + API_KEY;
+		$.ajax({
+			url: full_endpoint,
+			crossDomain: true,
+			headers: {
+				// "accept": "application/json",
+				"Access-Control-Allow-Origin": "*",
+				"Access-Control-Request-Headers3": "x-requested-with"
+			},
+			success: function (data) {
+				if (data) {
+					//console.log(data);
+					location.reload();
+				}
+
+
+			}
+		});
+	});
+
+	btn2.on('click', function () {
+		btn2.text("syncing...");
+		//api call
+		var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + self.wikibasePropertyValue + "/" + API_KEY;
 		$.ajax({
 			url: full_endpoint,
 			crossDomain: true,
