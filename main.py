@@ -2,7 +2,7 @@ import socket
 import sys
 
 import requests
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource
 from flask_cors import CORS, cross_origin
 from threading import Thread
@@ -30,14 +30,16 @@ class Sync(Resource):
         t = Thread(target=handle)
         return t
 
-    def get(self, q_id, api_key):
+    def get(self):
+        q_id = request.args.get('q_id')
+        api_key = request.args.get('api_key')
         if is_authorised(api_key):
             t = self.import_thread_spinner(q_id)
             t.start()
             t.join()
             payload = {"status_code": 200, "completed": True, "message": "Import process complete"}
         else:
-            payload = {"status_code": 403, "completed": False, "message": "Unathorised Access"}
+            payload = {"status_code": 403, "completed": False, "message": "Unauthorised Access"}
         return payload
 
 
@@ -50,7 +52,10 @@ class ImportOne(Resource):
             response = mth_import_one_without_statements(query_id)
         t = Thread(target=handle)
         return t
-    def get(self, q_id, api_key):
+    def get(self):
+        q_id = request.args.get('q_id')
+        api_key = request.args.get('api_key')
+
         # #from api_import_one import mth_import_one
         # self.import_thread_spinner(q_id).start()
         # #response = mth_import_one(q_id)
@@ -70,7 +75,10 @@ class ImportOne(Resource):
 
 
 class WikiDataQuery(Resource):
-    def get(self, query_string, query_type, api_key):
+    def get(self):
+        query_string = request.args.get('query_string')
+        query_type = request.args.get('query_type')
+        api_key = request.args.get('api_key')
 
         # general english
         # url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" + \
@@ -93,7 +101,9 @@ class WikiDataQuery(Resource):
         return payload
 
 class WikibaseQuery(Resource):
-    def get(self, query_string, api_key):
+    def get(self):
+        query_string = request.args.get('q_id')
+        api_key = request.args.get('api_key')
 
         # general english
         url = "http://localhost/w/api.php?action=wbsearchentities&search=" + \
@@ -122,10 +132,12 @@ def is_authorised(api_key):
 
 # ROUTES
 api.add_resource(Index, "/")
-api.add_resource(Sync, "/sync/<string:q_id>/<string:api_key>")
-api.add_resource(ImportOne, "/import-wikidata-item/<string:q_id>/<string:api_key>")
-api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>/<string:query_type>/<string:api_key>")
-api.add_resource(WikibaseQuery, "/local-wikibase-query/<string:query_string>/<string:api_key>")
+# api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>/<string:query_type>/<string:api_key>")
+
+api.add_resource(Sync, "/sync")
+api.add_resource(ImportOne, "/import-wikidata-item")
+api.add_resource(WikiDataQuery, "/remote-wikidata-query")
+api.add_resource(WikibaseQuery, "/local-wikibase-query")
 
 
 if __name__ == '__main__':
