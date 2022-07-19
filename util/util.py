@@ -1202,8 +1202,6 @@ class WikibaseImporter:
             wikibase_item.get()
         else:
             print("Entering here")
-            # if not statements:
-            #     return self.id.get_id(wikidata_item.getID())  # import done from front end clone
             wikibase_item = pywikibot.PropertyPage(wikibase_repo, self.id.get_id(wikidata_item.getID()),
                                                    datatype=wikidata_item.type)
             wikibase_item.get()
