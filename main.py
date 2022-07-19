@@ -14,8 +14,6 @@ CORS(app)
 
 api = Api(app)
 
-
-# RESOURCES: CONTROLLERS AND ACTIONS
 class Index(Resource):
     def get(self):
         return {"data": "Welcome to the index"}
@@ -25,8 +23,7 @@ class Index(Resource):
 class Sync(Resource):
     def import_thread_spinner(self, query_id):
         def handle():
-            from api_import_one import mth_import_one, mth_import_one_without_statements
-            response = mth_import_one(query_id)
+            response = import_one(query_id).getID()
         t = Thread(target=handle)
         return t
 
@@ -48,21 +45,16 @@ class ImportOne(Resource):
 
     def import_thread_spinner(self, query_id):
         def handle():
-            from api_import_one import mth_import_one, mth_import_one_without_statements
-            response = mth_import_one_without_statements(query_id)
+            response = import_one(query_id, import_statements = False)
         t = Thread(target=handle)
         return t
     def get(self):
         q_id = request.args.get('q_id')
         api_key = request.args.get('api_key')
 
-        # #from api_import_one import mth_import_one
-        # self.import_thread_spinner(q_id).start()
-        # #response = mth_import_one(q_id)
-
         if is_authorised(api_key):
             from api_import_one import mth_import_one, mth_import_one_without_statements
-            response = mth_import_one_without_statements(q_id)
+            response = mth_import_one_without_statements(q_id).getID()
             #   print(response)
             if response:
                 payload = {"status_code": 200, "message": "Import successful", "pid": response}
