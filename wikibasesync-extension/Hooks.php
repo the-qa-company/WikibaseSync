@@ -17,9 +17,11 @@
  * @file
  */
 
-namespace MediaWiki\Extension\BoilerPlate;
+namespace MediaWiki\Extension\WikibaseSync;
 use Config;
 use MediaWiki\ResourceLoader\Hook\ResourceLoaderGetConfigVarsHook;
+
+global $wgUser;
 
 class Hooks implements \MediaWiki\Hook\BeforePageDisplayHook{
 
@@ -29,21 +31,21 @@ class Hooks implements \MediaWiki\Hook\BeforePageDisplayHook{
 	 * @param \Skin $skin
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
-		$out->addModules( 'ext.boilerPlate' );
-		$config = $out->getConfig();
-		if ( $config->get( 'BoilerPlateVandalizeEachPage' ) ) {
-			$out->addModules( 'oojs-ui-core' );
-			$out->addHTML( \Html::element( 'p', [], 'BoilerPlate was here' ) );
+		$user = \RequestContext::getMain()->getUser();
+		if(!empty($user) && $user->getId() != 0){
+			//var_dump(gettype($user));
+			//var_dump($user->getId());
+			$out->addModules( 'ext.wikibaseSync' );
 		}
+		$config = $out->getConfig();
 	}
 
 	public function onResourceLoaderGetConfigVars( array &$vars, $string, Config $config ): void {
 		$vars['wgVisualEditor'] =[
 			"wikibasesync_server_url" => $config->get( 'WikibaseSyncUrl' ),
+			"api_key" => $config->get('ApiKey')
 			"PID" => $config->get( 'PID' ),
 			"QID" => $config->get( 'QID' ),
 		];
 	}
 }
-
-
