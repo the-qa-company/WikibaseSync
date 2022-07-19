@@ -52,13 +52,29 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 		_wikibasePropertyKey = self.value().getKey();
 
 		//PREFERRED APPROACH
-		if ($("a:contains('Wikidata QID')")) {
-			if (count == 0){
-				createSyncButtons(self);
-				count = count + 1;
-			}
-		};
+		// if ($("a:contains('Wikidata QID')")) {
+		// 	if (count == 0){
+		// 		createSyncButtons(self);
+		// 		count = count + 1;
+		// 	}
+		// };
 	}
+
+	//ALTERNATIVE APPROACH
+    if (_wikibasePropertyKey == conf.PID || _wikibasePropertyKey == conf.QID) {
+     self.wikibasePropertyKey = _wikibasePropertyKey;
+     // Only attach button for wikidata pid or qid properties which are always P1 and P2
+     //self.$propertyLabel.text('');
+     createSyncButton(self);
+	 createSyncLabelButton(self);
+
+
+     // console.log(self.wikibasePropertyKey,self.wikibasePropertyValue);
+
+    } else {
+     //self.$propertyLabel.text('')
+    }
+    // console.log(JSON.stringify(self.options, null, 2));
 
 };
 
@@ -324,6 +340,97 @@ function createSyncButtons(_context) {
 		});
 	});
 };
+
+function createSyncButton(_context) {
+    btn = $("<button id='wbsync'>sync</button>")
+    //btn.css("margin-top", ".5rem");
+	btn.css("display", "block");
+	//btn.css("margin-left", "5px");
+	btn.css("color", "#0645ad");
+	btn.css("background-color", "white");
+	btn.css("border-color", "#0645ad");
+	btn.css("border-radius", "5px");
+
+    _context.$propertyLabel.append(btn);
+
+    var _wikibasePropertyValue = _context.value().getItemContainer()._items[0]._claim._mainSnak._value._value;
+    self.wikibasePropertyValue = _wikibasePropertyValue;
+
+    //console.log(_context.wikibasePropertyKey,_context.wikibasePropertyValue);
+
+    btn.on('click', function () {
+        btn.text("syncing...");
+		btn.prop("disabled",true);
+		//disable other sync button
+		$('#wbsynclabel').prop("disabled",true);
+        //api call
+        // full_endpoint = WIKIBASE_SYNC_URL + '/sync/' + self.wikibasePropertyValue + "/" + API_KEY;
+		full_endpoint = WIKIBASE_SYNC_URL + '/sync?q_id=' + self.wikibasePropertyValue + "&api_key=" + API_KEY;
+        $.ajax({
+            url: full_endpoint,
+            crossDomain: true,
+            headers: {
+                // "accept": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Request-Headers3": "x-requested-with"
+            },
+            success: function (data) {
+                if (data) {
+                    console.log(data);
+                    location.reload();
+                }
+
+
+            }
+        });
+    });
+};
+
+function createSyncLabelButton(_context) {
+    btn2 = $("<button id='wbsynclabel'>sync label</button>")
+    //btn2.css("margin-left", "5px");
+	btn2.css("margin-top", ".3rem");
+	btn2.css("display", "block");
+	btn2.css("color", "#0645ad");
+	btn2.css("background-color", "white");
+	btn2.css("border-color", "#0645ad");
+	btn2.css("border-radius", "5px");
+
+    _context.$propertyLabel.append(btn2);
+
+    var _wikibasePropertyValue = _context.value().getItemContainer()._items[0]._claim._mainSnak._value._value;
+    self.wikibasePropertyValue = _wikibasePropertyValue;
+
+    //console.log(_context.wikibasePropertyKey,_context.wikibasePropertyValue);
+
+    btn2.on('click', function () {
+        btn2.text("syncing...");
+		btn2.prop("disabled",true);
+		//disable other sync button
+		$('#wbsync').prop("disabled",true);
+        //api call
+        // var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item/' + self.wikibasePropertyValue + "/" + API_KEY;
+		var full_endpoint = WIKIBASE_SYNC_URL + '/import-wikidata-item?q_id=' + self.wikibasePropertyValue + "&api_key=" + API_KEY;
+        $.ajax({
+            url: full_endpoint,
+            crossDomain: true,
+            headers: {
+                // "accept": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Request-Headers3": "x-requested-with"
+            },
+            success: function (data) {
+                if (data) {
+                    console.log(data);
+                    location.reload();
+                }
+
+
+            }
+        });
+    });
+};
+
 
 
 function removeExistingRecordsFromWikidataResults(wikidataResults, localResults){

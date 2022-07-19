@@ -21,7 +21,15 @@
 		"apiKey": {
 			"description": "API Key to wikibase sync",
 			"value": true
-		}
+		},
+		"PID": {
+            "description": "PID",
+            "value": true
+        },
+        "QID": {
+            "description": "QID",
+            "value": true
+        }
 	},
 	"HookHandlers": {
 		"WikibaseSyncHooks": {
