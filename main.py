@@ -21,7 +21,7 @@ class Index(Resource):
         return {"data": "Welcome to the index"}
 
 
-# dummy
+# class that imports all statements from Wikidata
 class Sync(Resource):
     def import_thread_spinner(self, query_id):
         def handle():
@@ -100,29 +100,6 @@ class WikiDataQuery(Resource):
             payload = {"status_code": 403, "completed": False, "message": "Unathorised Access"}
         return payload
 
-class WikibaseQuery(Resource):
-    def get(self):
-        query_string = request.args.get('q_id')
-        api_key = request.args.get('api_key')
-
-        # general english
-        url = "http://localhost/w/api.php?action=wbsearchentities&search=" + \
-              query_string + "&format=json&errorformat=plaintext&language=en&uselang=en&type=property"
-        if is_authorised(api_key):
-            # british english
-            # url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" + query_string + "&format=json&errorformat=plaintext&language=en-gb&uselang=en-gb&type=property"
-
-            response = requests.get(url)
-            response = response.json()
-            if response:
-                payload = {"status_code": 200, "response": response}
-            else:
-                payload = {"status_code": 500,
-                           "message": "Import could not be completed"}
-        else:
-            payload = {"status_code": 403, "completed": False, "message": "Unathorised Access"}
-        return payload
-
 def is_authorised(api_key):
     if str(user_config.apiKey) == api_key:
         return True
@@ -132,15 +109,10 @@ def is_authorised(api_key):
 
 # ROUTES
 api.add_resource(Index, "/")
-# api.add_resource(WikiDataQuery, "/remote-wikidata-query/<string:query_string>/<string:query_type>/<string:api_key>")
-
 api.add_resource(Sync, "/sync")
 api.add_resource(ImportOne, "/import-wikidata-item")
 api.add_resource(WikiDataQuery, "/remote-wikidata-query")
-api.add_resource(WikibaseQuery, "/local-wikibase-query")
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
