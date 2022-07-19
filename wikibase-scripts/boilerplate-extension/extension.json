@@ -1,0 +1,65 @@
+{
+	"name": "BoilerPlate",
+	"author": [
+		"mez"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:BoilerPlate",
+	"descriptionmsg": "boilerplate-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "other",
+	"requires": {
+		"MediaWiki": ">= 1.35.0"
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\BoilerPlate\\": "src/"
+	},
+	"config": {
+		"BoilerPlateEnableFoo": {
+			"description": "Enable the Foo feature.",
+			"value": true
+		},
+		"BoilerPlateVandalizeEachPage": {
+			"description": "Write 'BoilerPlate was here' on each page",
+			"value": false
+		},
+		"WikibaseSyncUrl": {
+			"description": "wikibasesync url",
+			"value": true
+		},
+		"PID": {
+			"description": "PID",
+			"value": true
+		},
+		"QID": {
+			"description": "QID",
+			"value": true
+		}
+	},
+	"HookHandlers": {
+		"BoilerPlateHooks": {
+			"class": "MediaWiki\\Extension\\BoilerPlate\\Hooks"
+		}
+	},
+	"Hooks": {
+		"BeforePageDisplay": "BoilerPlateHooks",
+		"ResourceLoaderGetConfigVars": "BoilerPlateHooks"
+	},
+	"MessagesDirs": {
+		"BoilerPlate": [
+			"i18n"
+		]
+	},
+	"ResourceModules": {
+		"ext.boilerPlate": {
+			"localBasePath": "resources/ext.boilerPlate",
+			"remoteExtPath": "BoilerPlate/resources/ext.boilerPlate",
+			"dependencies": ["wikibase.view.ControllerViewFactory"],
+			"styles": [],
+			"packageFiles": [
+				"init.js"
+			],
+			"messages": []
+		}
+	},
+	"manifest_version": 2
+}
