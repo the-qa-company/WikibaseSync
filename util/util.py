@@ -20,11 +20,9 @@ class WikibaseImporter:
         self.wikidata_repo = wikidata_repo
         self.identifier = PropertyWikidataIdentifier()
         self.identifier.get(wikibase_repo)
-        self.appConfig = configparser.ConfigParser()
-        self.appConfig.read('config/application.config.ini')
-        endpoint = self.appConfig.get('wikibase', 'sparqlEndPoint')
-        self.id = IdSparql(endpoint, self.identifier.itemIdentifier, self.identifier.propertyIdentifier)
-        self.id.load()
+        self.id = IdSparql()
+        self.app_config = configparser.ConfigParser()
+        self.app_config.read('config/application.config.ini')
 
     # transforms the json to an item
     def json_to_item(self, wikibase_repo, json_object):
@@ -1051,7 +1049,7 @@ class WikibaseImporter:
                             break
 
                     # print("User that added this claim ", revisions[edit_where_claim_was_added]['user'])
-                    if revisions[edit_where_claim_was_added]['user'].lower() != self.appConfig.get('wikibase', 'user').lower():
+                    if revisions[edit_where_claim_was_added]['user'].lower() != self.app_config.get('wikibase', 'user').lower():
                         not_remove.append(claimToRemove)
         for c in not_remove:
             claims_to_remove.remove(c)
