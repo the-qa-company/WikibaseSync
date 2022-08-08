@@ -43,9 +43,10 @@ class Hooks implements \MediaWiki\Hook\BeforePageDisplayHook{
 	public function onResourceLoaderGetConfigVars( array &$vars, $string, Config $config ): void {
 		$vars['wgVisualEditor'] =[
 			"wikibasesync_server_url" => $config->get( 'WikibaseSyncUrl' ),
-			"api_key" => $config->get('ApiKey')
+			"api_key" => $config->get('ApiKey'),
 			"PID" => $config->get( 'PID' ),
 			"QID" => $config->get( 'QID' ),
+			"Server" => $config->get( 'Server' ),
 		];
 	}
 }

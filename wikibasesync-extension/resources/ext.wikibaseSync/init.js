@@ -8,7 +8,8 @@ mw.boilerPlate = {};
 var wikidataResults = [];
 var WIKIBASE_SYNC_URL = conf.wikibasesync_server_url;
 var API_KEY = conf.api_key;
-//console.log( conf);
+var SERVER = conf.Server;
+console.log("SERVER ",SERVER);
 
 var count = 0;
 
@@ -61,6 +62,9 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 	}
 
 	//ALTERNATIVE APPROACH
+    console.log(_wikibasePropertyKey,' --- ', conf.PID)
+    console.log(_wikibasePropertyKey == conf.PID)
+    console.log(_wikibasePropertyKey == conf.QID)
     if (_wikibasePropertyKey == conf.PID || _wikibasePropertyKey == conf.QID) {
      self.wikibasePropertyKey = _wikibasePropertyKey;
      // Only attach button for wikidata pid or qid properties which are always P1 and P2
@@ -188,13 +192,13 @@ $.wikibase.entityselector.prototype._select = function ( entityStub ) {
 							self._selectedEntity.id = id;
 							self._selectedEntity.title = "Property:" + id;
 							self._selectedEntity.repository = "local";
-							self._selectedEntity.url = "http://localhost/wiki/Property:" + id;
+							self._selectedEntity.url = SERVER+"/wiki/Property:" + id;
 							self._selectedEntity.pageid = null;
 						} else if (self.options.type.toLowerCase() == "item"){
 							self._selectedEntity.id = id;
 							self._selectedEntity.title = id;
 							self._selectedEntity.repository = "local";
-							self._selectedEntity.url = "http://localhost/wiki/" + id;
+							self._selectedEntity.url = SERVER+"/wiki/" + id;
 							self._selectedEntity.pageid = null;
 						}
 
@@ -251,7 +255,7 @@ $.wikibase.entitysearch.prototype._initMenu = function ( ooMenu ) {
 						success: function (data) {
 							console.log("response: ",data);
 							//window.history.back();
-							window.location.replace('http://localhost/wiki/item:'+data.pid);
+							window.location.replace(SERVER+'/wiki/item:'+data.pid);
 
 						}
 					});
