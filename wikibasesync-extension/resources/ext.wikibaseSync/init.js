@@ -49,6 +49,7 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 
 
 	var _wikibasePropertyKey = "";
+	console.log('self.value()',self.value())
 	if (self.value()) {
 		_wikibasePropertyKey = self.value().getKey();
 
@@ -62,15 +63,12 @@ $.wikibase.statementgroupview.prototype._createStatementlistview = function () {
 	}
 
 	//ALTERNATIVE APPROACH
-    console.log(_wikibasePropertyKey,' --- ', conf.PID)
-    console.log(_wikibasePropertyKey == conf.PID)
-    console.log(_wikibasePropertyKey == conf.QID)
-    if (_wikibasePropertyKey == conf.PID || _wikibasePropertyKey == conf.QID) {
-     self.wikibasePropertyKey = _wikibasePropertyKey;
-     // Only attach button for wikidata pid or qid properties which are always P1 and P2
-     //self.$propertyLabel.text('');
-     createSyncButton(self);
-	 createSyncLabelButton(self);
+    	if (_wikibasePropertyKey == conf.PID || _wikibasePropertyKey == conf.QID) {
+     		self.wikibasePropertyKey = _wikibasePropertyKey;
+     		// Only attach button for wikidata pid or qid properties which are always P1 and P2
+     		//self.$propertyLabel.text('');
+     		createSyncButton(self);
+	 	createSyncLabelButton(self);
 
 
      // console.log(self.wikibasePropertyKey,self.wikibasePropertyValue);
@@ -110,13 +108,10 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 						"Access-Control-Allow-Origin": "*",
 						"Access-Control-Request-Headers3": "x-requested-with"
 					},
-					success: function (data) {
-						//console.log(data);
-						wikidataResults = data.response.search;
+					success: function (data2) {
+						wikidataResults = data2.response.search;
 					}
-				});
-			}
-		} )
+				})
 			.done( function ( response, statusText, jqXHR ) {
 				// T141955
 				if ( response.error ) {
@@ -140,10 +135,9 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 
 				// UPDATE THE TITLE AND SOURCE TO REFLECT WIKIDATA
 				// REMOVE WIKIDATA RESULTS THAT ALREADY EXIST IN WIKIBASE USING FOREACH
-				var updatedWikidataResults = removeExistingRecordsFromWikidataResults(wikidataResults, response.search)
+				var updatedWikidataResults = removeExistingRecordsFromWikidataResults(wikidataResults, data.search)
 				//console.log("updatedWikidataResults", updatedWikidataResults);
 				self._combineResults( hookResults, updatedWikidataResults ).then( function ( results ) {
-					//console.log(results)
 					deferred.resolve(
 						results,
 						term,
@@ -155,6 +149,8 @@ $.wikibase.entityselector.prototype._initDefaultSource = function () {
 			.fail( function ( jqXHR, textStatus ) {
 				deferred.reject( textStatus );
 			} );
+			}
+		} )
 
 		return deferred.promise();
 	};
