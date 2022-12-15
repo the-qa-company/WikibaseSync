@@ -109,7 +109,7 @@ class WikibaseImporter:
             # problem with the revisions_tmp object
             for h in revisions_tmp:
                 revisions.append(h)
-        except pywikibot.exceptions.NoPage:
+        except pywikibot.exceptions.NoPageError:
             # pywikibot.exceptions.NoPage: Page [[my:Item:-1]] doesn't exist
             # No revision
             pass
@@ -264,7 +264,7 @@ class WikibaseImporter:
         myDescriptions = self.diff_descriptions(wikidata_item, wikibase_item)
         myaliases = self.diff_aliases(wikidata_item, wikibase_item)
         # mySitelinks = diffSiteLinks(wikidata_item, wikibase_item)
-        mySitelinks = [];
+        mySitelinks = []
         claim = pywikibot.page.Claim(self.wikibase_repo, self.identifier.itemIdentifier, datatype='external-id')
         target = wikidata_item.getID()
         claim.setTarget(target)
