@@ -4,7 +4,6 @@ idna==2.8
 isodate==0.6.0
 pycparser==2.19
 pyparsing==2.4.5
-git+https://github.com/wikimedia/pywikibot.git@de92fc6dfe66812ec8714fc0066600a8bf38eb57
 rdflib==4.2.2
 requests==2.22.0
 six==1.13.0
@@ -14,3 +13,5 @@ urllib3==1.25.7
 Flask~=2.0.2
 Flask-Restful==0.3.9
 Flask-Cors==3.0.10
+pywikibot~=7.7.2
+mwparserfromhell>=0.5.0
