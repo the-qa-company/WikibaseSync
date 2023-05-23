@@ -124,7 +124,7 @@ class WikibaseImporter:
                                 # no update has been done on label, accept remote update
                                 mylabels[label] = wikidata_item.labels.get(label)
                             else:
-                                if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
+                                if self.app_config.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
                                     last_update_revision_on_label = self.get_last_label_update(revisions, label)
                                     if last_update_revision_on_label is None:
                                         # no update has been done on label, accept remote update
