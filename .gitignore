@@ -9,3 +9,4 @@ venv
 *log*
 *sh
 src/
+**/.DS_Store
