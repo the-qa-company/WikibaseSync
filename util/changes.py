@@ -5,6 +5,10 @@ from datetime import datetime, timedelta,timezone
 def recent_changes(rccontinue, minutes, url ="https://wikidata.org/w/api.php"):
     time = datetime.now(timezone.utc) - timedelta(minutes=minutes)
     S = requests.Session()
+    headers = {
+        "User-Agent": "WikibaseSync/1.0 (https://github.com/the-qa-company/WikibaseSync/)"
+    }
+    S.headers.update(headers)
 
     parameters = {
         "format": "json",
