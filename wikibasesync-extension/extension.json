@@ -1,0 +1,62 @@
+{
+	"name": "WikibaseSync",
+	"author": [
+		"mez"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:BoilerPlate",
+	"descriptionmsg": "This is a Wikibase extentsion to use and sync entities between Wikibases",
+	"license-name": "GPL-2.0-or-later",
+	"type": "other",
+	"requires": {
+		"MediaWiki": ">= 1.35.0"
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\WikibaseSync\\": "src/"
+	},
+	"config": {
+		"WikibaseSyncUrl": {
+			"description": "wikibasesync url",
+			"value": true
+		},
+		"apiKey": {
+			"description": "API Key to wikibase sync",
+			"value": true
+		},
+		"PID": {
+            "description": "PID",
+            "value": true
+        },
+        "QID": {
+            "description": "QID",
+            "value": true
+        }
+	},
+	"HookHandlers": {
+		"WikibaseSyncHooks": {
+			"class": "MediaWiki\\Extension\\WikibaseSync\\Hooks"
+		}
+	},
+	"Hooks": {
+		"BeforePageDisplay": "WikibaseSyncHooks",
+		"ResourceLoaderGetConfigVars": "WikibaseSyncHooks"
+	},
+	"MessagesDirs": {
+		"BoilerPlate": [
+			"i18n"
+		]
+	},
+	"ResourceModules": {
+		"ext.wikibaseSync": {
+			"localBasePath": "resources/ext.wikibaseSync",
+			"remoteExtPath": "WikibaseSync/resources/ext.wikibaseSync",
+			"dependencies": ["wikibase.view.ControllerViewFactory"],
+			"styles": [],
+			"packageFiles": [
+				"init.js"
+			],
+			"messages": []
+		}
+	},
+	"manifest_version": 2
+}
+

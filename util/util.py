@@ -20,11 +20,9 @@ class WikibaseImporter:
         self.wikidata_repo = wikidata_repo
         self.identifier = PropertyWikidataIdentifier()
         self.identifier.get(wikibase_repo)
-        self.appConfig = configparser.ConfigParser()
-        self.appConfig.read('config/application.config.ini')
-        endpoint = self.appConfig.get('wikibase', 'sparqlEndPoint')
-        self.id = IdSparql(endpoint, self.identifier.itemIdentifier, self.identifier.propertyIdentifier)
-        self.id.load()
+        self.id = IdSparql()
+        self.app_config = configparser.ConfigParser()
+        self.app_config.read('config/application.config.ini')
 
     # transforms the json to an item
     def json_to_item(self, wikibase_repo, json_object):
@@ -126,7 +124,7 @@ class WikibaseImporter:
                                 # no update has been done on label, accept remote update
                                 mylabels[label] = wikidata_item.labels.get(label)
                             else:
-                                if self.appConfig.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
+                                if self.app_config.get('wikibase', 'overwriteLocalChanges').lower() == 'false':
                                     last_update_revision_on_label = self.get_last_label_update(revisions, label)
                                     if last_update_revision_on_label is None:
                                         # no update has been done on label, accept remote update
@@ -1051,7 +1049,7 @@ class WikibaseImporter:
                             break
 
                     # print("User that added this claim ", revisions[edit_where_claim_was_added]['user'])
-                    if revisions[edit_where_claim_was_added]['user'].lower() != self.appConfig.get('wikibase', 'user').lower():
+                    if revisions[edit_where_claim_was_added]['user'].lower() != self.app_config.get('wikibase', 'user').lower():
                         not_remove.append(claimToRemove)
         for c in not_remove:
             claims_to_remove.remove(c)
@@ -1074,7 +1072,7 @@ class WikibaseImporter:
                 wikidata_claim = c.toJSON()
                 found_equal_value = False
                 wikidata_property_id = wikidata_claim.get('mainsnak').get('property')
-                print(wikidata_property_id)
+                # print(wikidata_property_id)
                 if wikibase_item.getID().startswith("Q") or wikibase_item.getID().startswith("P"):
                     for wikibase_claims in wikibase_item.claims:
                         for wikibase_c in wikibase_item.claims.get(wikibase_claims):
@@ -1086,7 +1084,7 @@ class WikibaseImporter:
                                                                                                     True)
                                 if (claim_found_equal_value == True):
                                     found_equal_value = True
-                    print(found_equal_value)
+                    # print(found_equal_value)
                     if found_equal_value == False:
                         # print("This claim is added ", wikidata_claim)
                         # import the property if it does not exist
@@ -1213,6 +1211,31 @@ class WikibaseImporter:
             self.change_claims(wikidata_item, wikibase_item)
         return wikibase_item
 
+def import_one(arg, import_statements = True):
+    # connect to the wikibase
+    wikibase = pywikibot.Site("my", "my")
+    wikibase_repo = wikibase.data_repository()
+    wikibase_repo.login()
+
+    # connect to wikidata
+    wikidata = pywikibot.Site("wikidata", "wikidata")
+    wikidata_repo = wikidata.data_repository()
+
+    from util.util import WikibaseImporter
+    wikibase_importer = WikibaseImporter(wikibase_repo, wikidata_repo)
+
+    # import a single item or property
+    print(f"Importing {arg}")
+    if arg.startswith("Q"):
+        print("before get")
+        wikidata_item = pywikibot.ItemPage(wikidata_repo, arg)
+        wikidata_item.get()
+        print("after get")
+        return wikibase_importer.change_item(wikidata_item, wikibase_repo, import_statements)
+    elif arg.startswith("P"):
+        wikidata_property = pywikibot.PropertyPage(wikidata_repo, arg)
+        wikidata_property.get()
+        return wikibase_importer.change_property(wikidata_property, wikibase_repo, import_statements)
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""

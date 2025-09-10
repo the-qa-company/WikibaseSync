@@ -27,8 +27,7 @@ identifier = PropertyWikidataIdentifier()
 identifier.get(wikibase_repo)
 print('Wikidata Item Identifier',identifier.itemIdentifier)
 
-idSparql = IdSparql(app_config.get('wikibase', 'sparqlEndPoint'), identifier.itemIdentifier, identifier.propertyIdentifier)
-idSparql.load()
+idSparql = IdSparql()
 
 #grab all entities that changed
 recent = get_wikidata_changes(None, 15)

@@ -1,4 +1,4 @@
-from pywikibot.config2 import usernames
+from pywikibot.config import usernames
 
 user_families_paths = ['./config']
 mylang = "wikidata"
@@ -9,3 +9,4 @@ minthrottle = 0
 maxthrottle = 0
 max_retries = 100
 #verbose_output = True
+apiKey = 123456
